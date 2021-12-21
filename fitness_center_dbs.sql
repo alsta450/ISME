@@ -1,101 +1,86 @@
 CREATE TABLE Person(
 svnr INTEGER PRIMARY KEY,
-nachname VARCHAR(20) NOT NULL,
-vorname VARCHAR(20) NOT NULL,
-geburtsdatum DATE NOT NULL,
+lastname VARCHAR(20) NOT NULL,
+firstname VARCHAR(20) NOT NULL,
+birthday DATE NOT NULL,
 iban VARCHAR(30) UNIQUE NOT NULL
 );
 
-CREATE TABLE Filiale(
-strasse VARCHAR(30),
-ort VARCHAR(30),
-plz CHAR(7),
+CREATE TABLE Branch(
+street VARCHAR(30),
+city VARCHAR(30),
+zip CHAR(4),
 name VARCHAR(15),
-grundflaeche CHAR(3),
-PRIMARY KEY(strasse,ort,plz)
+area VARCHAR(10),
+PRIMARY KEY(street,city,zip)
 );
 
-CREATE TABLE Raum(
-raumnummer INTEGER,
-strasse VARCHAR(30),
-ort VARCHAR(30),
-plz CHAR(7),
+CREATE TABLE Room(
+roomNumber INTEGER,
+street VARCHAR(30),
+city VARCHAR(30),
+zip CHAR(4),
 name VARCHAR(15),
-raumaustattung VARCHAR(20),
-PRIMARY KEY(raumnummer,strasse,ort,plz),
-FOREIGN KEY(strasse, ort, plz) REFERENCES Filiale(strasse, ort, plz) ON DELETE CASCADE
+interior VARCHAR(20),
+PRIMARY KEY(roomNumber,street,city,zip),
+FOREIGN KEY(street, city, zip) REFERENCES Branch(street, city, zip) ON DELETE CASCADE
 );
 
-CREATE TABLE Fitnessgeraet(
-bezeichnung VARCHAR(5) PRIMARY KEY,
-muskelgruppe VARCHAR(25),
-typ VARCHAR(10),
-strasse VARCHAR(30),
-ort VARCHAR(30),
-plz CHAR(7),
-FOREIGN KEY(strasse, ort, plz) REFERENCES Filiale(strasse, ort, plz) ON DELETE CASCADE
+CREATE TABLE FitnessEquipment(
+description VARCHAR(5) PRIMARY KEY,
+muscleGroup VARCHAR(25),
+fitnessType VARCHAR(10),
+street VARCHAR(30),
+city VARCHAR(30),
+zip CHAR(4),
+FOREIGN KEY(street, city, zip) REFERENCES Branch(street, city, zip) ON DELETE CASCADE
 );
 
-CREATE TABLE Mitarbeiter(
+CREATE TABLE Employee(
 svnr INTEGER PRIMARY KEY, 
-stunden NUMBER,
-gehalt INTEGER CHECK(gehalt >900),
-qualifikation VARCHAR(30),
-strasse VARCHAR(30),
-ort VARCHAR(30),
-plz CHAR(7),
+hours NUMBER,
+wage INTEGER CHECK(wage >900),
+qualification VARCHAR(30),
+street VARCHAR(30),
+city VARCHAR(30),
+zip CHAR(4),
 FOREIGN KEY(svnr) REFERENCES Person(svnr) ON DELETE CASCADE,
-FOREIGN KEY(strasse,ort,plz) REFERENCES Filiale(strasse,ort,plz) ON DELETE CASCADE
+FOREIGN KEY(street, city, zip) REFERENCES Branch(street, city, zip) ON DELETE CASCADE
 );
 
-CREATE TABLE schult(
-mitarberiter_svnr INTEGER,
+CREATE TABLE tutor(
+employee_svnr INTEGER,
 svnr INTEGER PRIMARY KEY,
-FOREIGN KEY(mitarberiter_svnr) REFERENCES Mitarbeiter(svnr) ON DELETE CASCADE,
-FOREIGN KEY(svnr) REFERENCES Mitarbeiter(svnr) ON DELETE CASCADE
+FOREIGN KEY(employee_svnr) REFERENCES Employee(svnr) ON DELETE CASCADE,
+FOREIGN KEY(svnr) REFERENCES Employee(svnr) ON DELETE CASCADE
 );
 
-CREATE TABLE Mitglied(
+CREATE TABLE Member(
 svnr INTEGER PRIMARY KEY, 
 abo VARCHAR(10),
-gebuehr Integer,
+fee Integer,
 FOREIGN KEY(svnr) REFERENCES Person(svnr) ON DELETE CASCADE
 );
 
-CREATE TABLE trainiert(
-mitarbeiter_svnr INTEGER, 
-mitglied_svnr INTEGER, 
-PRIMARY KEY(mitarbeiter_svnr, mitglied_svnr),
-FOREIGN KEY(mitarbeiter_svnr) REFERENCES Mitarbeiter(svnr) ON DELETE CASCADE,
-FOREIGN KEY(mitglied_svnr) REFERENCES Mitglied(svnr) ON DELETE CASCADE
+CREATE TABLE TrainingSession(
+trainings_id INTEGER PRIMARY KEY,
+price INTEGER NOT NULL,
+duration INTEGER NOT NULL,
+employee_svnr INTEGER, 
+member_svnr INTEGER, 
+FOREIGN KEY(employee_svnr) REFERENCES Employee(svnr) ON DELETE CASCADE,
+FOREIGN KEY(member_svnr) REFERENCES Member(svnr) ON DELETE CASCADE
+
 );
 
-CREATE TABLE besucht(
-mitglied_svnr INTEGER, 
-strasse VARCHAR(30),
-ort VARCHAR(30),
-plz CHAR(7),
-PRIMARY KEY(mitglied_svnr,strasse, ort, plz),
-FOREIGN KEY(mitglied_svnr) REFERENCES Mitglied(svnr) ON DELETE CASCADE,
-FOREIGN KEY(strasse, ort, plz) REFERENCES Filiale(strasse, ort, plz) ON DELETE CASCADE
-);
-
-CREATE TABLE Produkt(
-seriennummer INTEGER PRIMARY KEY,
-marke VARCHAR(15),
-typ VARCHAR(20),
-preis INTEGER
-);
-
-
-CREATE TABLE verkauft(
-mitarbeiter_svnr INTEGER,
-seriennummer INTEGER,
-mitglied_svnr INTEGER,
-PRIMARY KEY (seriennummer),
-FOREIGN KEY(mitglied_svnr) REFERENCES Mitglied(svnr) ON DELETE CASCADE,
-FOREIGN KEY(seriennummer) REFERENCES Produkt(seriennummer) ON DELETE CASCADE,
-FOREIGN KEY(mitarbeiter_svnr) REFERENCES Mitarbeiter(svnr) ON DELETE CASCADE
+CREATE TABLE visit(
+member_svnr INTEGER, 
+street VARCHAR(30),
+city VARCHAR(30),
+zip CHAR(7),
+PRIMARY KEY(member_svnr,street, city, zip),
+FOREIGN KEY(member_svnr) REFERENCES Member(svnr) ON DELETE CASCADE,
+FOREIGN KEY(street, city, zip) REFERENCES Branch(street, city, zip) ON DELETE CASCADE
 );
 
 CREATE SEQUENCE PRODUKT_SEQ START WITH 123456780;
