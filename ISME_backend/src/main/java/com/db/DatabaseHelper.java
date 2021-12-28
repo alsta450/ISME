@@ -1,4 +1,4 @@
-package db;
+package com.db;
 
 import java.sql.*;
 
@@ -41,7 +41,18 @@ public class DatabaseHelper {
 
 	public void createBranchTable() {
 		String createTable = "CREATE TABLE Branch(" + "street VARCHAR(30)," + "city VARCHAR(30)," + "zip CHAR(4),"
-				+ "name VARCHAR(15)," + "area VARCHAR(10)," + "PRIMARY KEY(street,city,zip)" + ");";
+				+ "name VARCHAR(40)," + "area VARCHAR(10)," + "PRIMARY KEY(street,city,zip)" + ");";
+
+		try {
+			statement.execute(createTable);
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void createPersonTable() {
+		String createTable = "CREATE TABLE Person(" + "svnr BIGINT PRIMARY KEY," + "lastname VARCHAR(20) NOT NULL," + "firstname VARCHAR(20) NOT NULL,"
+				+ "birthday DATE NOT NULL," + "iban VARCHAR(50) UNIQUE NOT NULL" + ");";
 
 		try {
 			statement.execute(createTable);
