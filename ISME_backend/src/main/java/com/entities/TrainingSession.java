@@ -32,5 +32,11 @@ public class TrainingSession {
 	@Column(name = "duration")
 	@JsonProperty("duration")
 	private int duration;
+
+	@Override
+	public String toString() {
+		return "TrainingSession [trainingsID=" + trainingsID + ", memberSvnr=" + memberSvnr + ", employeeSvnr="
+				+ employeeSvnr + ", price=" + price + ", duration=" + duration + "]";
+	}
 	
 }

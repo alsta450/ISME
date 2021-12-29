@@ -36,4 +36,5 @@ public class Branch {
 	@JsonProperty("area")
 	private String area;
 	
+	
 }

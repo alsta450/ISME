@@ -36,4 +36,11 @@ public class FitnessEquipment {
 	@JsonProperty("zip")
 	private String zip;
 
+	@Override
+	public String toString() {
+		return "FitnessEquipment [description=" + description + ", muscleGroup=" + muscleGroup + ", fitnessType="
+				+ fitnessType + ", street=" + street + ", city=" + city + ", zip=" + zip + "]";
+	}
+
+	
 }

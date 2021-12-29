@@ -10,12 +10,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.converter.JsonToClassConverter;
-import com.db.DatabaseHelper;
+import com.entities.Branch;
+import com.entities.BranchID;
+import com.entities.FitnessEquipment;
+import com.entities.TrainingSession;
 import com.operations.BranchOperations;
 import com.operations.EmployeeOperations;
 import com.operations.FitnessEquipmentOperations;
@@ -35,10 +40,9 @@ import com.operations.VisitOperations;
 @RequestMapping(value ="/fitness")
 public class FitnessCenterController {
 	private static Logger logger = LoggerFactory.getLogger(FitnessCenterController.class);
-	private DatabaseHelper dbhelper = new DatabaseHelper();
 	private JsonToClassConverter jsonConverter = new JsonToClassConverter();
 	
-	@Autowired(required=true)
+	@Autowired
 	PersonOperations personOperations;
 
 	@Autowired
@@ -168,7 +172,7 @@ public class FitnessCenterController {
 			e.printStackTrace();
 			return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		
+		/*
 		logger.info("Creating TrainingSession...");
 		try {
 			//Visit
@@ -180,8 +184,35 @@ public class FitnessCenterController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		}*/
 		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
 	}
+	
+	@RequestMapping(value = "/booking", method = RequestMethod.POST)
+	public ResponseEntity<HttpStatus> booking(@RequestBody TrainingSession trainingSession){
+		try {
+		logger.info("Received post request on /booking");
+		trainingSessionOperations.save(trainingSession);
+		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
+		}catch(Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<HttpStatus>(HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	
+	
+	@RequestMapping(value = "/{city}/{zip}/{street}/equipment", method = RequestMethod.GET)
+	public ResponseEntity<HttpStatus> getAllEquipment(@PathVariable String city,@PathVariable String zip,@PathVariable String street){
+		logger.info("Received get request on /{city}/{zip}/{street}/equipment");
+		FitnessEquipment f =  fitnessEquipmentOperations.findAllByCityAndZipAndStreet(city, zip, street);
+		System.out.println(f.toString());
+		return null;
+		
+	}
+	
+	
+	
+	
 
 }
