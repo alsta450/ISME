@@ -1,0 +1,10 @@
+[{"street":"Manufacturers","city":"Beicang","zip":4721,"description":"Treadmill","muscleGroup":"Legs","fitnessType":"Cardio"},
+{"street":"Forest Run","city":"Pangawaren","zip":8832,"description":"Stairmaster","muscleGroup":"Legs","fitnessType":"Cardio"},
+{"street":"Lakewood","city":"Nagbukel","zip":9359,"description":"Spinning Bike","muscleGroup":"Legs","fitnessType":"Cardio"},
+{"street":"Autumn Leaf","city":"Itacarambi","zip":1178,"description":"Bench Press","muscleGroup":"Chest","fitnessType":"Weights"},
+{"street":"Ludington","city":"Kisesa","zip":6251,"description":"Leg Press","muscleGroup":"Legs","fitnessType":"Weights"},
+{"street":"Forest Dale","city":"Las Lajas","zip":9820,"description":"Shoulder Press","muscleGroup":"Shoulder","fitnessType":"Weights"},
+{"street":"Harper","city":"Santo Rosario","zip":4412,"description":"Squad Rack","muscleGroup":"Legs","fitnessType":"Weights"},
+{"street":"Sauthoff","city":"La Esperanza","zip":9281,"description":"Deadlift","muscleGroup":"Back","fitnessType":"Weights"},
+{"street":"Ruskin","city":"Shuidong","zip":3219,"description":"Hip Thrust","muscleGroup":"Glutes","fitnessType":"Weights"},
+{"street":"Mockingbird","city":"Klwów","zip":7579,"description":"Tips Tower ","muscleGroup":"Triceps","fitnessType":"Weights"}]

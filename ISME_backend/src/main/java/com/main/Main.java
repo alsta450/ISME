@@ -22,6 +22,13 @@ public class Main {
 		DatabaseHelper dbhelper = new DatabaseHelper();
 		dbhelper.createBranchTable();
 		dbhelper.createPersonTable();
+		dbhelper.createRoomTable();
+		dbhelper.createFitnessEquipmentTable();
+		dbhelper.createEmployeeTable();
+		dbhelper.createTutorTable();
+		dbhelper.createMemberTable();
+		dbhelper.createVisitTable();
+		dbhelper.createTrainingSessionTable();
 		app.run(args);
 		
 		//JsonToClassConverter j = new JsonToClassConverter();
