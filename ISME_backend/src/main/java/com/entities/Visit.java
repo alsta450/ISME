@@ -31,4 +31,31 @@ public class Visit {
 	@Column(name = "zip")
 	@JsonProperty("zip")
 	private String zip;
+
+	public Visit(long memberSvnr, String street, String city, String zip) {
+		super();
+		this.memberSvnr = memberSvnr;
+		this.street = street;
+		this.city = city;
+		this.zip = zip;
+	}
+
+	public Visit() {
+		super();
+	}
+
+	public String getStreet() {
+		return street;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public String getZip() {
+		return zip;
+	}
+	
+	
+	
 }

@@ -23,4 +23,10 @@ public class Member {
 	@JsonProperty("fee")
 	private int fee;
 
+	public long getSvnr() {
+		return svnr;
+	}
+
+	
+	
 }
