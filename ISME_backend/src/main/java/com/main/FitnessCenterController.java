@@ -213,13 +213,13 @@ public class FitnessCenterController {
 	}
 
 	@RequestMapping(value = "branch/{member}", method = RequestMethod.GET)
-	public @ResponseBody List<Branch> getMemberRegistrations(@PathVariable String member) {
-		logger.info("Received get request on branch/{member}");
-		List<Visit> visitList = visitOperations.findAllByMemberSvnr(Long.getLong(member));
-		List<Branch> branchList = new ArrayList<Branch>();
+	public @ResponseBody ArrayList<Branch> getMemberRegistrations(@PathVariable long member) {
+		logger.info("Received get request on branch/{}",member);
+		List<Visit> visitList = visitOperations.findAllByMemberSvnr(member);
+		ArrayList<Branch> branchList = new ArrayList<Branch>();
 		for (Visit visit : visitList) {
-
-			branchList.add(branchOperations.getById(new BranchID(visit.getStreet(), visit.getCity(), visit.getZip())));
+			Branch b = branchOperations.getById(new BranchID(visit.getStreet(), visit.getCity(), visit.getZip()));
+			branchList.add(new Branch(b.getStreet(),b.getCity(),b.getZip(),b.getName(),b.getArea()));
 		}
 
 		return branchList;
@@ -227,9 +227,10 @@ public class FitnessCenterController {
 	}
 
 	@RequestMapping(value = "trainingsession/{member}", method = RequestMethod.GET)
-	public @ResponseBody List<TrainingSession> getMemberTrainingSessions(@PathVariable String member) {
-		logger.info("Received get request on trainingsession/{member}");
-		List<TrainingSession> allMemberSession = trainingSessionOperations.findAllByMemberSvnr(Long.getLong(member));
+	public @ResponseBody List<TrainingSession> getMemberTrainingSessions(@PathVariable long member) {
+
+		logger.info("Received get request on trainingsession/{}", member);
+		List<TrainingSession> allMemberSession = trainingSessionOperations.findAllByMemberSvnr(member);
 
 		return allMemberSession;
 

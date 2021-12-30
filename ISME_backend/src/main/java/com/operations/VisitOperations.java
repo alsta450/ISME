@@ -8,5 +8,5 @@ import com.entities.Visit;
 import com.entities.VisitID;
 
 public interface VisitOperations extends JpaRepository<Visit,VisitID>{
-	public List<Visit> findAllByMemberSvnr(Long member_svnr);
+	public List<Visit> findAllByMemberSvnr(Long memberSvnr);
 }

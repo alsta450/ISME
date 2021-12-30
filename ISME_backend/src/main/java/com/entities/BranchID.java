@@ -36,6 +36,18 @@ public class BranchID implements Serializable {
 				&& Objects.equals(zip, other.zip);
 	}
 
+	public String getStreet() {
+		return street;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public String getZip() {
+		return zip;
+	}
+
 	
 	
 }
