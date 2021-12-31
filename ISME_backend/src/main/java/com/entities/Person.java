@@ -44,6 +44,9 @@ public class Person {
 	@JsonFormat(pattern="yyyy-MM-dd")
 	private Date birthday;
 	
+	//TODO Username Password
+	
+	
 	public Person() {};
 	
 	public Person(long svnr, String firstname, String lastname, String iban, Date birthday) {

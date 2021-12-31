@@ -39,4 +39,7 @@ public class Employee {
 	@Column(name="qualification")
 	@JsonProperty("qualification")
 	private String qualification;
+	
+	//TODO Role
+	
 }

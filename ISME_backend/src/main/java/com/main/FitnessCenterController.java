@@ -236,4 +236,13 @@ public class FitnessCenterController {
 
 	}
 
+	@RequestMapping(value = "login", method = RequestMethod.POST)
+	public ResponseEntity<HttpStatus> login(@RequestBody String username, @RequestBody String password) {
+		logger.info("Received post request on login");
+		//TODO Schauen ob existiert, wenn ja dann return employee/member wenn nein HttpStatus.NOT_ACCEPTABLE
+		
+		
+		return new ResponseEntity<HttpStatus>(HttpStatus.NOT_ACCEPTABLE);
+	}
+	
 }
