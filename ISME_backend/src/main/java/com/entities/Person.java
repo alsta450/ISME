@@ -44,8 +44,13 @@ public class Person {
 	@JsonFormat(pattern="yyyy-MM-dd")
 	private Date birthday;
 	
-	//TODO Username Password
+	@Column(name = "username")
+	@JsonProperty("username")
+	private String username;
 	
+	@Column(name = "password")
+	@JsonProperty("password")
+	private String password;
 	
 	public Person() {};
 	

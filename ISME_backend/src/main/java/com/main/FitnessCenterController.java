@@ -1,5 +1,7 @@
 package com.main;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.converter.JsonToClassConverter;
+import com.db.DatabaseHelper;
 import com.entities.Branch;
 import com.entities.BranchID;
 import com.entities.FitnessEquipment;
@@ -33,13 +36,16 @@ import com.operations.RoomOperations;
 import com.operations.TrainingSessionOperations;
 import com.operations.TutorOperations;
 import com.operations.VisitOperations;
+import com.report.BestTrainer;
 
 @RestController
 @RequestMapping(value = "/fitness")
 public class FitnessCenterController {
 	private static Logger logger = LoggerFactory.getLogger(FitnessCenterController.class);
 	private JsonToClassConverter jsonConverter = new JsonToClassConverter();
+	DatabaseHelper dbhelper = new DatabaseHelper();
 
+	
 	@Autowired
 	PersonOperations personOperations;
 
@@ -69,6 +75,16 @@ public class FitnessCenterController {
 
 	@RequestMapping(value = "/create", method = RequestMethod.GET)
 	public ResponseEntity<HttpStatus> ceateAllEntries() {
+		dbhelper.createBranchTable();
+		dbhelper.createPersonTable();
+		dbhelper.createRoomTable();
+		dbhelper.createFitnessEquipmentTable();
+		dbhelper.createEmployeeTable();
+		dbhelper.createTutorTable();
+		dbhelper.createMemberTable();
+		dbhelper.createVisitTable();
+		dbhelper.createTrainingSessionTable();
+		
 		logger.info("Creating Person...");
 		try {
 			// Person
@@ -169,15 +185,20 @@ public class FitnessCenterController {
 			e.printStackTrace();
 			return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		/*
-		 * logger.info("Creating TrainingSession..."); try { //Visit JSONArray
-		 * trainingSessionList =
-		 * jsonConverter.readJson("src/main/resources/trainingsession.json"); Iterator
-		 * it = trainingSessionList.iterator(); while(it.hasNext()) {
-		 * trainingSessionOperations.save(jsonConverter.jsonToTrainingSession(it.next())
-		 * ); } } catch (Exception e) { e.printStackTrace(); return new
-		 * ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR); }
-		 */
+
+		logger.info("Creating TrainingSession...");
+		try { 
+			// Visit
+			JSONArray trainingSessionList = jsonConverter.readJson("src/main/resources/trainingsession.json");
+			Iterator it = trainingSessionList.iterator();
+			while (it.hasNext()) {
+				trainingSessionOperations.save(jsonConverter.jsonToTrainingSession(it.next()));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
 		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
 	}
 
@@ -214,12 +235,12 @@ public class FitnessCenterController {
 
 	@RequestMapping(value = "branch/{member}", method = RequestMethod.GET)
 	public @ResponseBody ArrayList<Branch> getMemberRegistrations(@PathVariable long member) {
-		logger.info("Received get request on branch/{}",member);
+		logger.info("Received get request on branch/{}", member);
 		List<Visit> visitList = visitOperations.findAllByMemberSvnr(member);
 		ArrayList<Branch> branchList = new ArrayList<Branch>();
 		for (Visit visit : visitList) {
 			Branch b = branchOperations.getById(new BranchID(visit.getStreet(), visit.getCity(), visit.getZip()));
-			branchList.add(new Branch(b.getStreet(),b.getCity(),b.getZip(),b.getName(),b.getArea()));
+			branchList.add(new Branch(b.getStreet(), b.getCity(), b.getZip(), b.getName(), b.getArea()));
 		}
 
 		return branchList;
@@ -236,13 +257,44 @@ public class FitnessCenterController {
 
 	}
 
+	//TODO
 	@RequestMapping(value = "login", method = RequestMethod.POST)
 	public ResponseEntity<HttpStatus> login(@RequestBody String username, @RequestBody String password) {
 		logger.info("Received post request on login");
-		//TODO Schauen ob existiert, wenn ja dann return employee/member wenn nein HttpStatus.NOT_ACCEPTABLE
-		
-		
+		// TODO Schauen ob existiert, wenn ja dann return employee/member wenn nein
+		// HttpStatus.NOT_ACCEPTABLE
+
 		return new ResponseEntity<HttpStatus>(HttpStatus.NOT_ACCEPTABLE);
 	}
 	
+	//TODO Report 1 Endpoint
+	
+	@RequestMapping(value = "top-trainers", method = RequestMethod.GET)
+	public List<BestTrainer> getTopTrainers() {
+		
+		ResultSet rs = dbhelper.getBestTrainers();
+	      try {
+			while (rs.next()) {
+			      long employee_svnr = rs.getLong(1);
+			      long member_svnr = rs.getLong(2);
+			      String zip = rs.getString(3);
+			      String street= rs.getString(4);
+			      String city= rs.getString(5);
+			      String member_name= rs.getString(6);
+			      String employee_name= rs.getString(7);
+			      String name= rs.getString(8);
+			      int total_sessions= rs.getInt(9);
+			      System.out.println(employee_svnr + ", " + member_svnr + ", " + zip +
+			                         ", " + street + ", " + city+ ", " + member_name+ ", " + employee_name+ ", " + name+ ", " + total_sessions);
+			    }
+		} catch (SQLException e) {
+			// TODO Class List<best_trainer> list; list[0]  best_trainer.getMember_SVNR -> returns List<String>
+			e.printStackTrace();
+		}
+		
+		return new ArrayList<BestTrainer> ();
+
+	}
+	
+
 }

@@ -19,16 +19,7 @@ public class Main {
 	private static final int DEFAULT_PORT = 8081;
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(Main.class);
-		DatabaseHelper dbhelper = new DatabaseHelper();
-		dbhelper.createBranchTable();
-		dbhelper.createPersonTable();
-		dbhelper.createRoomTable();
-		dbhelper.createFitnessEquipmentTable();
-		dbhelper.createEmployeeTable();
-		dbhelper.createTutorTable();
-		dbhelper.createMemberTable();
-		dbhelper.createVisitTable();
-		dbhelper.createTrainingSessionTable();
+
 		app.run(args);
 		
 		//JsonToClassConverter j = new JsonToClassConverter();

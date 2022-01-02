@@ -8,7 +8,8 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity
 @Table(name = "Member")
-public class Member {
+
+public class Member{
 	@Id
 	@Column(name = "svnr")
 	@JsonProperty("svnr")
@@ -23,6 +24,10 @@ public class Member {
 	@JsonProperty("fee")
 	private int fee;
 
+	@Column(name="role")
+	@JsonProperty("role")
+	private String role;
+	
 	public long getSvnr() {
 		return svnr;
 	}

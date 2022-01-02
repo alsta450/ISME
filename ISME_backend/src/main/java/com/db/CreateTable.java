@@ -1,5 +1,7 @@
 package com.db;
 
+import java.sql.ResultSet;
+
 public interface CreateTable {
 	public void createRoomTable();
 	public void createBranchTable();
@@ -10,5 +12,5 @@ public interface CreateTable {
 	public void createEmployeeTable();
 	public void createTrainingSessionTable();
 	public void createVisitTable();
-	
+	public ResultSet getBestTrainers();
 }
