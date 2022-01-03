@@ -134,4 +134,14 @@ public class JsonToClassConverter {
 		}
 		return null;
 	}
+	
+	public Member jsonToNewMember(Object o) {
+		try {
+			Member member= mapper.readValue(o.toString(), Member.class);
+			return member;
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

@@ -1,7 +1,5 @@
 package com.entities;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -11,8 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "Employee")
-@AttributeOverrides({ @AttributeOverride(name = "svnr", column = @Column(name = "svnr")) })
-public class Employee extends Person{
+public class Employee{
 
 	@Id
 	@Column(name = "svnr")

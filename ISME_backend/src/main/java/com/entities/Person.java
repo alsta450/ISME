@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "Person")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)  
 public class Person {
 
 	@Id
