@@ -1,8 +1,10 @@
 package com.db;
 
-import java.sql.*;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class DatabaseHelper implements CreateTable {
 
@@ -209,7 +211,7 @@ public class DatabaseHelper implements CreateTable {
 				+ "    (SELECT \r\n"
 				+ "        Person.firstname AS 'employee_name', SVNR\r\n"
 				+ "    FROM\r\n"
-				+ "        Person) AS Person_alias2 ON popular_trainer.employee_svnr = Person_alias2.Svnr;";
+				+ "        Person) AS Person_alias2 ON popular_trainer.employee_svnr = Person_alias2.Svnr ORDER BY zip,street,city;";
 		
 		try {
 			Statement stmt = connection.createStatement();
@@ -220,6 +222,86 @@ public class DatabaseHelper implements CreateTable {
 		}
 		return null;
 		
+	}
+
+	@Override
+	public ResultSet getLoyalMember() {
+		String loyalMembers = "SELECT \r\n"
+				+ "    t.employee_svnr,\r\n"
+				+ "    t.member_svnr,\r\n"
+				+ "    t.zip,\r\n"
+				+ "    t.city,\r\n"
+				+ "    t.street,\r\n"
+				+ "    t.total_price,\r\n"
+				+ "    t.total_sessions,\r\n"
+				+ "    t.member_firstname,\r\n"
+				+ "    name,\r\n"
+				+ "    Person.firstname AS trainer_firstname\r\n"
+				+ "FROM\r\n"
+				+ "    (SELECT \r\n"
+				+ "        training_session.employee_svnr,\r\n"
+				+ "            t.member_svnr,\r\n"
+				+ "            t.zip,\r\n"
+				+ "            t.city,\r\n"
+				+ "            t.street,\r\n"
+				+ "            t.total_price,\r\n"
+				+ "            t.total_sessions,\r\n"
+				+ "            t.member_firstname,\r\n"
+				+ "            name\r\n"
+				+ "    FROM\r\n"
+				+ "        Training_session\r\n"
+				+ "    INNER JOIN (SELECT \r\n"
+				+ "        employee_svnr,\r\n"
+				+ "            member_svnr,\r\n"
+				+ "            t.zip,\r\n"
+				+ "            t.city,\r\n"
+				+ "            t.street,\r\n"
+				+ "            name,\r\n"
+				+ "            member_firstname,\r\n"
+				+ "            total_sessions,\r\n"
+				+ "            total_price\r\n"
+				+ "    FROM\r\n"
+				+ "        (SELECT \r\n"
+				+ "        *\r\n"
+				+ "    FROM\r\n"
+				+ "        (SELECT \r\n"
+				+ "        *\r\n"
+				+ "    FROM\r\n"
+				+ "        (SELECT \r\n"
+				+ "        employee_svnr,\r\n"
+				+ "            member_svnr,\r\n"
+				+ "            ZIP,\r\n"
+				+ "            street,\r\n"
+				+ "            city,\r\n"
+				+ "            COUNT(member_svnr) AS total_sessions,\r\n"
+				+ "            SUM(price) AS total_price\r\n"
+				+ "    FROM\r\n"
+				+ "        training_session\r\n"
+				+ "    INNER JOIN employee ON training_session.employee_svnr = employee.svnr\r\n"
+				+ "    GROUP BY zip , street , city , member_svnr\r\n"
+				+ "    ORDER BY COUNT(member_svnr) DESC) AS t\r\n"
+				+ "    GROUP BY ZIP , street , city\r\n"
+				+ "    ORDER BY total_price DESC) AS t\r\n"
+				+ "    INNER JOIN (SELECT \r\n"
+				+ "        firstname AS member_firstname, svnr\r\n"
+				+ "    FROM\r\n"
+				+ "        Person) AS person_alias ON member_svnr = person_alias.svnr) AS t\r\n"
+				+ "    INNER JOIN Branch ON Branch.zip = t.zip\r\n"
+				+ "        AND Branch.street = t.street\r\n"
+				+ "        AND Branch.city = t.city) AS t ON t.member_svnr = training_session.member_svnr\r\n"
+				+ "    INNER JOIN employee ON Employee.svnr = training_session.employee_svnr\r\n"
+				+ "        AND t.zip = employee.zip) AS t\r\n"
+				+ "        INNER JOIN\r\n"
+				+ "    Person ON Person.svnr = t.employee_svnr ORDER BY Total_Price DESC;";
+		
+		try {
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(loyalMembers);
+			return rs;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	

@@ -3,8 +3,12 @@ package com.main;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.json.simple.JSONArray;
 import org.slf4j.Logger;
@@ -25,8 +29,10 @@ import com.entities.Branch;
 import com.entities.BranchID;
 import com.entities.FitnessEquipment;
 import com.entities.Member;
+import com.entities.Person;
 import com.entities.TrainingSession;
 import com.entities.Visit;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.operations.BranchOperations;
 import com.operations.EmployeeOperations;
 import com.operations.FitnessEquipmentOperations;
@@ -37,6 +43,7 @@ import com.operations.TrainingSessionOperations;
 import com.operations.TutorOperations;
 import com.operations.VisitOperations;
 import com.report.BestTrainer;
+import com.report.LoyalMember;
 
 @RestController
 @RequestMapping(value = "/fitness")
@@ -257,44 +264,80 @@ public class FitnessCenterController {
 
 	}
 
-	//TODO
 	@RequestMapping(value = "login", method = RequestMethod.POST)
-	public ResponseEntity<HttpStatus> login(@RequestBody String username, @RequestBody String password) {
+	public Person login(@RequestBody ObjectNode objectNode) {
 		logger.info("Received post request on login");
-		// TODO Schauen ob existiert, wenn ja dann return employee/member wenn nein
-		// HttpStatus.NOT_ACCEPTABLE
-
-		return new ResponseEntity<HttpStatus>(HttpStatus.NOT_ACCEPTABLE);
+		Optional<Person> person = personOperations.findOneByPasswordAndUsername(objectNode.get("password").asText(),objectNode.get("username").asText());
+		if(person.isPresent()) return person.get();
+		// TODO Throw custom exception
+		
+		return null;
 	}
 	
-	//TODO Report 1 Endpoint
 	
 	@RequestMapping(value = "top-trainers", method = RequestMethod.GET)
-	public List<BestTrainer> getTopTrainers() {
-		
+	public Collection<BestTrainer> getTopTrainers() {
+		logger.info("Received request on /top-trainers");
 		ResultSet rs = dbhelper.getBestTrainers();
+		Collection<BestTrainer> trainerList = handleTrainerRequest(rs);
+		return trainerList;
+	}
+	
+	@RequestMapping(value = "loyal-members", method = RequestMethod.GET)
+	public Collection<LoyalMember> getLoyalMembers() {
+		logger.info("Received request on /loyal-members");
+		ResultSet rs = dbhelper.getLoyalMember();
+		Collection<LoyalMember> memberList = handleLoyalMemberRequest(rs);
+		return memberList;
+	}
+	
+	
+	private Collection<BestTrainer> handleTrainerRequest(ResultSet rs){
+		Map<Long,BestTrainer> trainerMap = new HashMap<Long, BestTrainer>();
+		
 	      try {
 			while (rs.next()) {
 			      long employee_svnr = rs.getLong(1);
-			      long member_svnr = rs.getLong(2);
-			      String zip = rs.getString(3);
-			      String street= rs.getString(4);
-			      String city= rs.getString(5);
-			      String member_name= rs.getString(6);
-			      String employee_name= rs.getString(7);
-			      String name= rs.getString(8);
-			      int total_sessions= rs.getInt(9);
-			      System.out.println(employee_svnr + ", " + member_svnr + ", " + zip +
-			                         ", " + street + ", " + city+ ", " + member_name+ ", " + employee_name+ ", " + name+ ", " + total_sessions);
+			      
+			      if(trainerMap.containsKey(employee_svnr)) {
+			    	  trainerMap.get(employee_svnr).addMemberName(rs.getString(6));
+			      }else {
+			    	  trainerMap.put(employee_svnr, new BestTrainer(rs.getString(7),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(8),rs.getInt(9)));
+			    	  trainerMap.get(employee_svnr).addMemberName(rs.getString(6));
+			      }
+			      
+		
 			    }
 		} catch (SQLException e) {
-			// TODO Class List<best_trainer> list; list[0]  best_trainer.getMember_SVNR -> returns List<String>
 			e.printStackTrace();
 		}
 		
-		return new ArrayList<BestTrainer> ();
+		return trainerMap.values();
+		
+	}
 
+	private Collection<LoyalMember> handleLoyalMemberRequest(ResultSet rs){
+		Map<Long,LoyalMember> memberMap = new HashMap<Long, LoyalMember>();
+		
+	      try {
+			while (rs.next()) {
+			      long member_svnr = rs.getLong(2);
+			      
+			      if(memberMap.containsKey(member_svnr)) {
+			    	  memberMap.get(member_svnr).addTrainerName(rs.getString(10));
+			      }else {
+			    	  memberMap.put(member_svnr, new LoyalMember(rs.getString(8),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(9),rs.getInt(6),rs.getInt(7)));
+			    	  memberMap.get(member_svnr).addTrainerName(rs.getString(10));
+			      }
+			      
+		
+			    }
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return memberMap.values();
+		
 	}
 	
-
 }

@@ -3,36 +3,30 @@ package com.report;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BestTrainer {
-	private String trainerName;
+public class LoyalMember {
+	private String memberName;
 	private String zip;
 	private String street;
 	private String city;
 	private String branchName;
+	private int totalPrice;
 	private int totalSessions;
-	private List<String> memberName = new ArrayList<String>();
+	private List<String> trainerName = new ArrayList<String>();
 
-	public BestTrainer(String trainerName, String zip, String street, String city, String branchName,
+	public LoyalMember(String memberName, String zip, String street, String city, String branchName, int totalPrice,
 			int totalSessions) {
 		super();
-		this.trainerName = trainerName;
+		this.memberName = memberName;
 		this.zip = zip;
 		this.street = street;
 		this.city = city;
 		this.branchName = branchName;
+		this.totalPrice = totalPrice;
 		this.totalSessions = totalSessions;
 	}
 
-	public List<String> getMemberName() {
+	public String getMemberName() {
 		return memberName;
-	}
-
-	public void addMemberName(String name) {
-		memberName.add(name);
-	}
-
-	public String getTrainerName() {
-		return trainerName;
 	}
 
 	public String getZip() {
@@ -51,8 +45,20 @@ public class BestTrainer {
 		return branchName;
 	}
 
+	public int getTotalPrice() {
+		return totalPrice;
+	}
+
 	public int getTotalSessions() {
 		return totalSessions;
+	}
+
+	public List<String> getTrainerName() {
+		return trainerName;
+	}
+
+	public void addTrainerName(String name) {
+		trainerName.add(name);
 	}
 
 }

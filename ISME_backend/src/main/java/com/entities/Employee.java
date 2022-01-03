@@ -1,49 +1,50 @@
 package com.entities;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Entity
 @Table(name = "Employee")
+@AttributeOverrides({ @AttributeOverride(name = "svnr", column = @Column(name = "svnr")) })
+public class Employee extends Person{
 
-public class Employee{
-	
 	@Id
 	@Column(name = "svnr")
 	@JsonProperty("svnr")
 	private long svnr;
-	
-	@Column(name="street")
+
+	@Column(name = "street")
 	@JsonProperty("street")
 	private String street;
-	
-	@Column(name="city")
+
+	@Column(name = "city")
 	@JsonProperty("city")
 	private String city;
-	
-	@Column(name="zip")
+
+	@Column(name = "zip")
 	@JsonProperty("zip")
 	private String zip;
-	
-	@Column(name="hours")
+
+	@Column(name = "hours")
 	@JsonProperty("hours")
 	private int hours;
-	
-	
-	@Column(name="wage")
+
+	@Column(name = "wage")
 	@JsonProperty("wage")
 	private int wage;
-	
-	@Column(name="qualification")
+
+	@Column(name = "qualification")
 	@JsonProperty("qualification")
 	private String qualification;
-	
-	@Column(name="role")
+
+	@Column(name = "role")
 	@JsonProperty("role")
 	private String role;
-	
 
 }
