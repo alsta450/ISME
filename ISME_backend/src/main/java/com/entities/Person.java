@@ -54,6 +54,10 @@ public class Person {
 	@JsonProperty("password")
 	private String password;
 	
+
+	private String role;
+	
+	
 	public Person() {};
 	
 	public Person(long svnr, String firstname, String lastname, String iban, Date birthday) {
@@ -62,5 +66,16 @@ public class Person {
 		this.lastName = lastname;
 		this.iban = iban;
 		this.birthday=birthday;
+		this.role="";
 	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	public String getRole() {
+		return role;
+	}
+	
+	
 }

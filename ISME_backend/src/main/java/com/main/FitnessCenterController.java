@@ -82,6 +82,7 @@ public class FitnessCenterController {
 
 	@RequestMapping(value = "/create", method = RequestMethod.GET)
 	public ResponseEntity<HttpStatus> ceateAllEntries() {
+		/*
 		dbhelper.createBranchTable();
 		dbhelper.createPersonTable();
 		dbhelper.createRoomTable();
@@ -91,7 +92,7 @@ public class FitnessCenterController {
 		dbhelper.createMemberTable();
 		dbhelper.createVisitTable();
 		dbhelper.createTrainingSessionTable();
-		
+		*/
 		logger.info("Creating Person...");
 		try {
 			// Person
@@ -268,7 +269,14 @@ public class FitnessCenterController {
 	public Person login(@RequestBody ObjectNode objectNode) {
 		logger.info("Received post request on login");
 		Optional<Person> person = personOperations.findOneByPasswordAndUsername(objectNode.get("password").asText(),objectNode.get("username").asText());
-		if(person.isPresent()) return person.get();
+		if(person.isPresent()) {
+			person.get().setRole("member");
+			return person.get();
+		}
+		
+		
+		
+		
 		// TODO Throw custom exception
 		
 		return null;
