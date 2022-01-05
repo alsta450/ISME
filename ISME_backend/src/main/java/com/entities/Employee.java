@@ -40,8 +40,5 @@ public class Employee{
 	@JsonProperty("qualification")
 	private String qualification;
 
-	@Column(name = "role")
-	@JsonProperty("role")
-	private String role;
 
 }

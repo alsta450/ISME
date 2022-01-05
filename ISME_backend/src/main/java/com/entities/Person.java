@@ -55,7 +55,7 @@ public class Person {
 	private String password;
 	
 
-	private String role;
+	private transient String role;
 	
 	
 	public Person() {};
@@ -66,7 +66,6 @@ public class Person {
 		this.lastName = lastname;
 		this.iban = iban;
 		this.birthday=birthday;
-		this.role="";
 	}
 
 	public void setRole(String role) {
@@ -75,6 +74,34 @@ public class Person {
 
 	public String getRole() {
 		return role;
+	}
+
+	public long getSvnr() {
+		return svnr;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public String getIban() {
+		return iban;
+	}
+
+	public Date getBirthday() {
+		return birthday;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public String getPassword() {
+		return password;
 	}
 	
 	

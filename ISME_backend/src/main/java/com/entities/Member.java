@@ -25,9 +25,6 @@ public class Member{
 	@JsonProperty("fee")
 	private int fee;
 
-	@Column(name = "role")
-	@JsonProperty("role")
-	private String role;
 
 	public long getSvnr() {
 		return svnr;
