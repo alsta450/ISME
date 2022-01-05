@@ -224,6 +224,15 @@ public class FitnessCenterController {
 
 	}
 
+	@RequestMapping(value = "branch", method = RequestMethod.GET)
+	public @ResponseBody List<Branch> getAllBranches() {
+		logger.info("Received get request on branch");
+		List<Branch> branch = branchOperations.findAll();
+		return branch;
+
+	}
+	
+	
 	@RequestMapping(value = "branch/{city}/{zip}/{street}/register", method = RequestMethod.POST)
 	public ResponseEntity<HttpStatus> registerForBranch(@PathVariable String city, @PathVariable String zip,
 			@PathVariable String street, @RequestBody Member member) {
