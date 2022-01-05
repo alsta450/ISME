@@ -235,16 +235,17 @@ public class FitnessCenterController {
 	
 	@RequestMapping(value = "branch/{city}/{zip}/{street}/register", method = RequestMethod.POST)
 	public ResponseEntity<HttpStatus> registerForBranch(@PathVariable String city, @PathVariable String zip,
-			@PathVariable String street, @RequestBody Member member) {
-		logger.info("Received post request on branch/{city}/{zip}/{street}/register");
-		visitOperations.save(new Visit(member.getSvnr(), street, city, zip));
+			@PathVariable String street, @RequestBody  ObjectNode objectNode) {
+		
+		logger.info("Received post request on branch/{city}/{zip}/{street}/register/{}", objectNode.get("svnr").asText());
+		visitOperations.save(new Visit(objectNode.get("svnr").asLong(), street, city, zip));
 		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "branch/member/{member}", method = RequestMethod.GET)
-	public @ResponseBody ArrayList<Branch> getMemberRegistrations(@PathVariable long member) {
-		logger.info("Received get request on branch/{}", member);
-		List<Visit> visitList = visitOperations.findAllByMemberSvnr(member);
+	@RequestMapping(value = "branch/member", method = RequestMethod.POST)
+	public @ResponseBody ArrayList<Branch> getMemberRegistrations(@RequestBody  ObjectNode objectNode) {
+		logger.info("Received post request on branch/{}", objectNode.get("svnr").asText());
+		List<Visit> visitList = visitOperations.findAllByMemberSvnr(objectNode.get("svnr").asLong());
 		ArrayList<Branch> branchList = new ArrayList<Branch>();
 		for (Visit visit : visitList) {
 			Branch b = branchOperations.getById(new BranchID(visit.getStreet(), visit.getCity(), visit.getZip()));
@@ -255,11 +256,11 @@ public class FitnessCenterController {
 
 	}
 
-	@RequestMapping(value = "trainingsession/{member}", method = RequestMethod.GET)
-	public @ResponseBody List<TrainingSession> getMemberTrainingSessions(@PathVariable long member) {
+	@RequestMapping(value = "trainingsession", method = RequestMethod.POST)
+	public @ResponseBody List<TrainingSession> getMemberTrainingSessions(@RequestBody  ObjectNode objectNode) {
 
-		logger.info("Received get request on trainingsession/{}", member);
-		List<TrainingSession> allMemberSession = trainingSessionOperations.findAllByMemberSvnr(member);
+		logger.info("Received get request on trainingsession/{}", objectNode.get("svnr").asText());
+		List<TrainingSession> allMemberSession = trainingSessionOperations.findAllByMemberSvnr(objectNode.get("svnr").asLong());
 
 		return allMemberSession;
 
