@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.converter.JsonToClassConverter;
-import com.db.DatabaseHelper;
 import com.entities.Branch;
 import com.entities.BranchID;
 import com.entities.FitnessEquipment;
@@ -45,6 +44,7 @@ import com.operations.TutorOperations;
 import com.operations.VisitOperations;
 import com.report.BestTrainer;
 import com.report.LoyalMember;
+import com.sql.DatabaseHelper;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:8080/")
@@ -241,7 +241,7 @@ public class FitnessCenterController {
 		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "branch/{member}", method = RequestMethod.GET)
+	@RequestMapping(value = "branch/member/{member}", method = RequestMethod.GET)
 	public @ResponseBody ArrayList<Branch> getMemberRegistrations(@PathVariable long member) {
 		logger.info("Received get request on branch/{}", member);
 		List<Visit> visitList = visitOperations.findAllByMemberSvnr(member);
