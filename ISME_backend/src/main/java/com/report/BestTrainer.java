@@ -1,7 +1,7 @@
 package com.report;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class BestTrainer {
 	private String trainerName;
@@ -10,7 +10,7 @@ public class BestTrainer {
 	private String city;
 	private String branchName;
 	private int totalSessions;
-	private List<String> memberName = new ArrayList<String>();
+	private SortedSet<String> memberName = new TreeSet<String>();
 
 	public BestTrainer(String trainerName, String zip, String street, String city, String branchName,
 			int totalSessions) {
@@ -23,7 +23,7 @@ public class BestTrainer {
 		this.totalSessions = totalSessions;
 	}
 
-	public List<String> getMemberName() {
+	public SortedSet<String> getMemberName() {
 		return memberName;
 	}
 

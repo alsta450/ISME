@@ -1,7 +1,10 @@
 package com.report;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class LoyalMember {
 	private String memberName;
@@ -11,7 +14,7 @@ public class LoyalMember {
 	private String branchName;
 	private int totalPrice;
 	private int totalSessions;
-	private List<String> trainerName = new ArrayList<String>();
+	private SortedSet<String> trainerName = new TreeSet<String>();
 
 	public LoyalMember(String memberName, String zip, String street, String city, String branchName, int totalPrice,
 			int totalSessions) {
@@ -53,7 +56,7 @@ public class LoyalMember {
 		return totalSessions;
 	}
 
-	public List<String> getTrainerName() {
+	public SortedSet<String> getTrainerName() {
 		return trainerName;
 	}
 

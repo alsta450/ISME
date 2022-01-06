@@ -40,5 +40,39 @@ public class Employee{
 	@JsonProperty("qualification")
 	private String qualification;
 
+	@Override
+	public String toString() {
+		return "Employee [svnr=" + svnr + ", street=" + street + ", city=" + city + ", zip=" + zip + ", hours=" + hours
+				+ ", wage=" + wage + ", qualification=" + qualification + "]";
+	}
+
+	public long getSvnr() {
+		return svnr;
+	}
+
+	public String getStreet() {
+		return street;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public String getZip() {
+		return zip;
+	}
+
+	public int getHours() {
+		return hours;
+	}
+
+	public int getWage() {
+		return wage;
+	}
+
+	public String getQualification() {
+		return qualification;
+	}
+
 
 }

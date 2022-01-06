@@ -27,9 +27,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.converter.JsonToClassConverter;
 import com.entities.Branch;
 import com.entities.BranchID;
+import com.entities.Employee;
 import com.entities.FitnessEquipment;
 import com.entities.Member;
 import com.entities.Person;
+import com.entities.PersonNameSvnr;
 import com.entities.TrainingSession;
 import com.entities.Visit;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -213,17 +215,17 @@ public class FitnessCenterController {
 		}
 
 	}
-
+/*
 	@RequestMapping(value = "branch/{city}/{zip}/{street}/equipment", method = RequestMethod.GET)
 	public @ResponseBody FitnessEquipment getAllEquipment(@PathVariable String city, @PathVariable String zip,
 			@PathVariable String street) {
 		logger.info("Received get request on branch/{city}/{zip}/{street}/equipment");
 		FitnessEquipment fitnessEquipment = fitnessEquipmentOperations.findAllByCityAndZipAndStreet(city, zip, street);
-		System.out.println(fitnessEquipment.toString());
+
 		return fitnessEquipment;
 
 	}
-
+*/
 	@RequestMapping(value = "branch", method = RequestMethod.GET)
 	public @ResponseBody List<Branch> getAllBranches() {
 		logger.info("Received get request on branch");
@@ -242,6 +244,25 @@ public class FitnessCenterController {
 		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
 	}
 
+	@RequestMapping(value = "branch/{city}/{zip}/{street}/employee", method = RequestMethod.GET)
+	public @ResponseBody List<PersonNameSvnr> getEmployeeForBranch(@PathVariable String city, @PathVariable String zip,
+			@PathVariable String street) {
+		
+		logger.info("Received get request on branch/{}/{}/{}/employee",city,zip,street);
+		
+		List<Employee> employeeList = employeeOperations.findAllByCity(city);
+		List<PersonNameSvnr> returnList = new ArrayList<PersonNameSvnr>();
+		for(Employee e : employeeList) {
+			
+			Person p = personOperations.getById(e.getSvnr());
+			
+			returnList.add(new PersonNameSvnr(p.getSvnr(), p.getFirstName()));
+		}
+		return returnList;
+	}
+	
+	
+	
 	@RequestMapping(value = "branch/member", method = RequestMethod.POST)
 	public @ResponseBody ArrayList<Branch> getMemberRegistrations(@RequestBody  ObjectNode objectNode) {
 		logger.info("Received post request on branch/{}", objectNode.get("svnr").asText());
@@ -305,6 +326,8 @@ public class FitnessCenterController {
 		Collection<LoyalMember> memberList = handleLoyalMemberRequest(rs);
 		return memberList;
 	}
+	
+	
 	
 	
 	private Collection<BestTrainer> handleTrainerRequest(ResultSet rs){
