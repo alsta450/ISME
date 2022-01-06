@@ -33,6 +33,7 @@ import com.entities.Member;
 import com.entities.Person;
 import com.entities.PersonNameSvnr;
 import com.entities.TrainingSession;
+import com.entities.TrainingSessionsForMember;
 import com.entities.Visit;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.operations.BranchOperations;
@@ -278,12 +279,15 @@ public class FitnessCenterController {
 	}
 
 	@RequestMapping(value = "trainingsession", method = RequestMethod.POST)
-	public @ResponseBody List<TrainingSession> getMemberTrainingSessions(@RequestBody  ObjectNode objectNode) {
+	public List<TrainingSessionsForMember> getMemberTrainingSessions(@RequestBody  ObjectNode objectNode) {
 
 		logger.info("Received get request on trainingsession/{}", objectNode.get("svnr").asText());
-		List<TrainingSession> allMemberSession = trainingSessionOperations.findAllByMemberSvnr(objectNode.get("svnr").asLong());
-
-		return allMemberSession;
+		
+		ResultSet rs = dbhelper.getTrainingSessions(objectNode.get("svnr").asText());
+		
+		
+		
+		return handleTrainingRequest(rs);
 
 	}
 
@@ -328,7 +332,25 @@ public class FitnessCenterController {
 	}
 	
 	
-	
+	private List<TrainingSessionsForMember> handleTrainingRequest(ResultSet rs){
+		List<TrainingSessionsForMember> returnList = new ArrayList<TrainingSessionsForMember>();
+		 try {
+				while (rs.next()) {
+				      int duration = rs.getInt(1);
+				      int price = rs.getInt(2);
+				      String memberName = rs.getString(3);
+				      String trainerName = rs.getString(4);
+				      returnList.add(new TrainingSessionsForMember(memberName, trainerName, price,duration));
+				      
+			
+				    }
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+			return returnList;
+		
+	}
 	
 	private Collection<BestTrainer> handleTrainerRequest(ResultSet rs){
 		Map<Long,BestTrainer> trainerMap = new HashMap<Long, BestTrainer>();

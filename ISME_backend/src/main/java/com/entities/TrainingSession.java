@@ -38,5 +38,25 @@ public class TrainingSession {
 		return "TrainingSession [trainingsID=" + trainingsID + ", memberSvnr=" + memberSvnr + ", employeeSvnr="
 				+ employeeSvnr + ", price=" + price + ", duration=" + duration + "]";
 	}
+
+	public int getTrainingsID() {
+		return trainingsID;
+	}
+
+	public long getMemberSvnr() {
+		return memberSvnr;
+	}
+
+	public long getEmployeeSvnr() {
+		return employeeSvnr;
+	}
+
+	public int getPrice() {
+		return price;
+	}
+
+	public int getDuration() {
+		return duration;
+	}
 	
 }

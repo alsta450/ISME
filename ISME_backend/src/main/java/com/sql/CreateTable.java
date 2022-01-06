@@ -14,4 +14,5 @@ public interface CreateTable {
 	public void createVisitTable();
 	public ResultSet getBestTrainers();
 	public ResultSet getLoyalMember();
+	public ResultSet getTrainingSessions(String memberSvnr);
 }

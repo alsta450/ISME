@@ -304,6 +304,30 @@ public class DatabaseHelper implements CreateTable {
 		return null;
 	}
 	
-	
-	
+	@Override
+	public ResultSet getTrainingSessions(String memberSvnr) {
+		String query = "SELECT \r\n"
+				+ "			    duration,price, member_firstname, person_trainer.firstname as trainer_firstname\r\n"
+				+ "			    FROM\r\n"
+				+ "			        (SELECT \r\n"
+				+ "			            duration,\r\n"
+				+ "			                price,\r\n"
+				+ "			                person_member.firstname AS member_firstname,\r\n"
+				+ "			                employee_svnr\r\n"
+				+ "			        FROM\r\n"
+				+ "			            training_session\r\n"
+				+ "			        INNER JOIN PErson AS person_member ON training_session.member_svnr = person_member.svnr\r\n"
+				+ "			        WHERE\r\n"
+				+ "			            training_session.member_svnr = "+memberSvnr+") AS p\r\n"
+				+ "			            INNER JOIN\r\n"
+				+ "			        Person as person_trainer on p.employee_svnr = person_trainer.svnr;";
+		try {
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			return rs;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }
