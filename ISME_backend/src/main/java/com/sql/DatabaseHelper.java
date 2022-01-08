@@ -330,4 +330,73 @@ public class DatabaseHelper implements CreateTable {
 		}
 		return null;
 	}
+
+	@Override
+	public ResultSet getBranchAndEmployees() {
+		String query = "select Branch.city, Branch.street, Branch.zip, area, name, svnr FROM Branch Inner Join employee on Branch.zip = employee.zip AND  Branch.street = employee.street AND  Branch.city = employee.city;";
+		try {
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			return rs;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@Override
+	public ResultSet getBranchAndEquipment() {
+		String query = "SELECT description,fitness_type,muscle_group,BRanch.zip,branch.city,branch.street FROM Branch inner Join fitness_equipment on Branch.zip = fitness_equipment.zip AND  Branch.street = fitness_equipment.street AND  Branch.city = fitness_equipment.city;";
+		try {
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			return rs;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@Override
+	public ResultSet getTrainingSessionAndName() {
+		String query = "SELECT \r\n"
+				+ "    trainings_id, duration, employee_svnr, price, firstname\r\n"
+				+ "FROM\r\n"
+				+ "    training_session\r\n"
+				+ "        INNER JOIN\r\n"
+				+ "    person ON person.svnr = training_session.employee_svnr;";
+		try {
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			return rs;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@Override
+	public ResultSet getMemberAndPersonAndTrainingAndVisit() {
+		String query = "SELECT Member.svnr, abo, fee, birthday, firstname, iban, lastname, password, username, trainings_id, city, street, zip FROM Member inner Join Person on Person.svnr = Member.svnr left Join Training_session on Member.svnr = Training_session.member_Svnr left join visit on Member.svnr = visit.member_svnr;";
+		try {
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			return rs;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	@Override
+	public ResultSet getEmployeeAndTutor() {
+		String query = "SELECT emp.svnr, emp.hours,emp.qualification, emp.wage, emp.birthday, emp.firstname,emp.iban,emp.lastname,emp.password,emp.username,employee.svnr as tutor FROM (SELECT Employee.svnr, hours,qualification, wage, birthday, firstname,iban,lastname,password,username FROM Employee INNER JOIN Person on Employee.svnr = Person.svnr) AS emp LEFT JOIN employee on emp.svnr = employee.tutor;";
+		try {
+			Statement stmt = connection.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			return rs;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

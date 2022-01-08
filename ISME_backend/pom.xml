@@ -68,12 +68,18 @@
 			<artifactId>json-simple</artifactId>
 			<version>1.1</version>
 		</dependency>
+<dependency>
+    <groupId>org.mongodb</groupId>
+    <artifactId>bson</artifactId>
+    <version>4.4.0</version>
+</dependency>
 
-    <dependency>
-        <groupId>org.mongodb</groupId>
-        <artifactId>mongo-java-driver</artifactId>
-        <version>2.12.3</version>
-    </dependency>
+<dependency>
+    <groupId>org.mongodb</groupId>
+    <artifactId>mongo-java-driver</artifactId>
+    <version>3.12.10</version>
+</dependency>
+
 
 	</dependencies>
 	<repositories>

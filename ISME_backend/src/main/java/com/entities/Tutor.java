@@ -7,10 +7,10 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Entity
-@Table(name = "Tutor")
+//@Entity
+//@Table(name = "Tutor")
 public class Tutor {
-	
+	/*
 	@Id
 	@Column(name = "svnr")
 	@JsonProperty("svnr")
@@ -19,4 +19,5 @@ public class Tutor {
 	@Column(name = "employee_svnr")
 	@JsonProperty("employee_svnr")
 	private long employee_svnr;
+	*/
 }

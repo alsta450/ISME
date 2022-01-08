@@ -15,4 +15,9 @@ public interface CreateTable {
 	public ResultSet getBestTrainers();
 	public ResultSet getLoyalMember();
 	public ResultSet getTrainingSessions(String memberSvnr);
+	public ResultSet getBranchAndEmployees();
+	public ResultSet getBranchAndEquipment();
+	public ResultSet getTrainingSessionAndName();
+	public ResultSet getMemberAndPersonAndTrainingAndVisit();
+	public ResultSet getEmployeeAndTutor();
 }

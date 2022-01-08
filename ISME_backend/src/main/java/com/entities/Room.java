@@ -44,5 +44,29 @@ public class Room implements Serializable{
 	@JsonProperty("interior")
 	private String interior;
 
+	public int getRoomNumber() {
+		return roomNumber;
+	}
+
+	public String getStreet() {
+		return street;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public String getZip() {
+		return zip;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getInterior() {
+		return interior;
+	}
+
 	
 }

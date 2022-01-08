@@ -39,6 +39,10 @@ public class Employee{
 	@Column(name = "qualification")
 	@JsonProperty("qualification")
 	private String qualification;
+	
+	@Column(name = "tutor")
+	@JsonProperty("tutor")
+	private long tutor;
 
 	@Override
 	public String toString() {
@@ -72,6 +76,10 @@ public class Employee{
 
 	public String getQualification() {
 		return qualification;
+	}
+
+	public long getTutor() {
+		return tutor;
 	}
 
 

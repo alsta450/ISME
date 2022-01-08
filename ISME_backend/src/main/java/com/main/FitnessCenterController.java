@@ -1,16 +1,9 @@
 package com.main;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
-import org.json.simple.JSONArray;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,30 +14,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.converter.JsonToClassConverter;
+import com.controller.SQLController;
+import com.converter.SqlToNosqlConverter;
 import com.entities.Branch;
-import com.entities.BranchID;
-import com.entities.Employee;
-import com.entities.FitnessEquipment;
-import com.entities.Member;
 import com.entities.Person;
 import com.entities.PersonNameSvnr;
 import com.entities.TrainingSession;
 import com.entities.TrainingSessionsForMember;
-import com.entities.Visit;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.operations.BranchOperations;
-import com.operations.EmployeeOperations;
-import com.operations.FitnessEquipmentOperations;
-import com.operations.MemberOperations;
-import com.operations.PersonOperations;
+import com.nosql.NoSqlHelper;
 import com.operations.RoomOperations;
-import com.operations.TrainingSessionOperations;
-import com.operations.TutorOperations;
-import com.operations.VisitOperations;
 import com.report.BestTrainer;
 import com.report.LoyalMember;
 import com.sql.DatabaseHelper;
@@ -52,352 +35,202 @@ import com.sql.DatabaseHelper;
 @RestController
 @CrossOrigin(origins = "http://localhost:8080/")
 @RequestMapping(value = "/fitness")
-public class FitnessCenterController {
+public class FitnessCenterController extends AController {
+	// private SQLController sqlController = new SQLController();
 	private static Logger logger = LoggerFactory.getLogger(FitnessCenterController.class);
-	private JsonToClassConverter jsonConverter = new JsonToClassConverter();
-	DatabaseHelper dbhelper = new DatabaseHelper();
-
-	
+	private SqlToNosqlConverter sqlToNosqlConverter = new SqlToNosqlConverter();
+	private DatabaseHelper dbhelper = new DatabaseHelper();
+	private NoSqlHelper nosqlHelper = new NoSqlHelper();
+	private static final String SQL = "SQL";
 	@Autowired
-	PersonOperations personOperations;
-
+	private SQLController sqlController;
+/*
 	@Autowired
-	BranchOperations branchOperations;
-
-	@Autowired
-	RoomOperations roomOperations;
+	private PersonOperations personOperations;
 
 	@Autowired
-	FitnessEquipmentOperations fitnessEquipmentOperations;
+	private BranchOperations branchOperations;
+*/
+	@Autowired
+	private RoomOperations roomOperations;
+	/*
+	 * @Autowired private FitnessEquipmentOperations fitnessEquipmentOperations;
+	 */
+	/*
+	@Autowired
+	private EmployeeOperations employeeOperations;
 
 	@Autowired
-	EmployeeOperations employeeOperations;
+	private MemberOperations memberOperations;
 
 	@Autowired
-	MemberOperations memberOperations;
-
-	@Autowired
-	TutorOperations tutorOperations;
-
-	@Autowired
-	VisitOperations visitOperations;
-
-	@Autowired
-	TrainingSessionOperations trainingSessionOperations;
-
+	private VisitOperations visitOperations;
+*/
+	/*
+	 * @Autowired private TrainingSessionOperations trainingSessionOperations;
+	 */
+	@Override
 	@RequestMapping(value = "/create", method = RequestMethod.GET)
 	public ResponseEntity<HttpStatus> ceateAllEntries() {
-		logger.info("Creating Person...");
-		try {
-			// Person
-			JSONArray personList = jsonConverter.readJson("src/main/resources/person.json");
-			Iterator it = personList.iterator();
-			while (it.hasNext()) {
-				personOperations.save(jsonConverter.jsonToPerson(it.next()));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		logger.info("Creating Branch...");
-		try {
-			// Branch
-			JSONArray branchList = jsonConverter.readJson("src/main/resources/branch.json");
-			Iterator it = branchList.iterator();
-			while (it.hasNext()) {
-				branchOperations.save(jsonConverter.jsonToBranch(it.next()));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		logger.info("Creating Room...");
-		try {
-			// Room
-			JSONArray roomList = jsonConverter.readJson("src/main/resources/room.json");
-			Iterator it = roomList.iterator();
-			while (it.hasNext()) {
-				roomOperations.save(jsonConverter.jsonToRoom(it.next()));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		sqlController.ceateAllEntries();
 
-		logger.info("Creating FitnessEquipment...");
-		try {
-			// FitnessEquipment
-			JSONArray fitnessEquipmentList = jsonConverter.readJson("src/main/resources/fitness_equipment.json");
-			Iterator it = fitnessEquipmentList.iterator();
-			while (it.hasNext()) {
-				fitnessEquipmentOperations.save(jsonConverter.jsonToFitnessEquipment(it.next()));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		logger.info("Creating Employee...");
-		try {
-			// Employee
-			JSONArray employeeList = jsonConverter.readJson("src/main/resources/employee.json");
-			Iterator it = employeeList.iterator();
-			while (it.hasNext()) {
-				employeeOperations.save(jsonConverter.jsonToEmployee(it.next()));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
+	}
 
-		logger.info("Creating Member...");
-		try {
-			// Member
-			JSONArray memberList = jsonConverter.readJson("src/main/resources/member.json");
-			Iterator it = memberList.iterator();
-			while (it.hasNext()) {
-				memberOperations.save(jsonConverter.jsonToMember(it.next()));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-
-		logger.info("Creating Tutor...");
-		try {
-			// Tutor
-			JSONArray tutorList = jsonConverter.readJson("src/main/resources/tutor.json");
-			Iterator it = tutorList.iterator();
-			while (it.hasNext()) {
-				tutorOperations.save(jsonConverter.jsonToTutor(it.next()));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-
-		logger.info("Creating Visit...");
-		try {
-			// Visit
-			JSONArray visitList = jsonConverter.readJson("src/main/resources/visit.json");
-			Iterator it = visitList.iterator();
-			while (it.hasNext()) {
-				visitOperations.save(jsonConverter.jsonToVisit(it.next()));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-
-		logger.info("Creating TrainingSession...");
-		try { 
-			// Visit
-			JSONArray trainingSessionList = jsonConverter.readJson("src/main/resources/trainingsession.json");
-			Iterator it = trainingSessionList.iterator();
-			while (it.hasNext()) {
-				trainingSessionOperations.save(jsonConverter.jsonToTrainingSession(it.next()));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
+	@Override
+	@RequestMapping(value = "/booking", method = RequestMethod.POST)
+	public ResponseEntity<HttpStatus> booking(@RequestBody TrainingSession trainingSession, @RequestParam String db) {
+		logger.info("Received post request on /booking");
+		if (db.equals(SQL)) {
+			return sqlController.booking(trainingSession, db);
+		} else {
+			// TODO NOSQL
 		}
 
 		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/booking", method = RequestMethod.POST)
-	public ResponseEntity<HttpStatus> booking(@RequestBody TrainingSession trainingSession) {
-		try {
-			logger.info("Received post request on /booking");
-			trainingSessionOperations.save(trainingSession);
-			return new ResponseEntity<HttpStatus>(HttpStatus.OK);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new ResponseEntity<HttpStatus>(HttpStatus.BAD_REQUEST);
+	/*
+	 * @RequestMapping(value = "branch/{city}/{zip}/{street}/equipment", method =
+	 * RequestMethod.GET) public @ResponseBody FitnessEquipment
+	 * getAllEquipment(@PathVariable String city, @PathVariable String zip,
+	 * 
+	 * @PathVariable String street) {
+	 * logger.info("Received get request on branch/{city}/{zip}/{street}/equipment"
+	 * ); FitnessEquipment fitnessEquipment =
+	 * fitnessEquipmentOperations.findAllByCityAndZipAndStreet(city, zip, street);
+	 * 
+	 * return fitnessEquipment;
+	 * 
+	 * }
+	 */
+
+	@Override
+	@RequestMapping(value = "branch", method = RequestMethod.GET)
+	public @ResponseBody List<Branch> getAllBranches(@RequestParam String db) {
+		logger.info("Received get request on branch");
+		if (db.equals(SQL)) {
+			return sqlController.getAllBranches(db);
+		} else {
+			// TODO NOSQL
+			return null;
 		}
 
 	}
-/*
-	@RequestMapping(value = "branch/{city}/{zip}/{street}/equipment", method = RequestMethod.GET)
-	public @ResponseBody FitnessEquipment getAllEquipment(@PathVariable String city, @PathVariable String zip,
-			@PathVariable String street) {
-		logger.info("Received get request on branch/{city}/{zip}/{street}/equipment");
-		FitnessEquipment fitnessEquipment = fitnessEquipmentOperations.findAllByCityAndZipAndStreet(city, zip, street);
 
-		return fitnessEquipment;
-
-	}
-*/
-	@RequestMapping(value = "branch", method = RequestMethod.GET)
-	public @ResponseBody List<Branch> getAllBranches() {
-		logger.info("Received get request on branch");
-		List<Branch> branch = branchOperations.findAll();
-		return branch;
-
-	}
-	
-	
+	@Override
 	@RequestMapping(value = "branch/{city}/{zip}/{street}/register", method = RequestMethod.POST)
 	public ResponseEntity<HttpStatus> registerForBranch(@PathVariable String city, @PathVariable String zip,
-			@PathVariable String street, @RequestBody  ObjectNode objectNode) {
-		
-		logger.info("Received post request on branch/{city}/{zip}/{street}/register/{}", objectNode.get("svnr").asText());
-		visitOperations.save(new Visit(objectNode.get("svnr").asLong(), street, city, zip));
+			@PathVariable String street, @RequestBody ObjectNode objectNode, @RequestParam String db) {
+		logger.info("Received post request on branch/{city}/{zip}/{street}/register/{}",
+				objectNode.get("svnr").asText());
+		if (db.equals(SQL)) {
+			return sqlController.registerForBranch(city, zip, street, objectNode, db);
+		} else {
+			// TODO NOSQL
+			return null;
+		}
+
+	}
+
+	@Override
+	@RequestMapping(value = "branch/{city}/{zip}/{street}/employee", method = RequestMethod.GET)
+	public @ResponseBody List<PersonNameSvnr> getEmployeeForBranch(@PathVariable String city, @PathVariable String zip,
+			@PathVariable String street, @RequestParam String db) {
+
+		logger.info("Received get request on branch/{}/{}/{}/employee", city, zip, street);
+		if (db.equals(SQL)) {
+			return sqlController.getEmployeeForBranch(city, zip, street, db);
+		} else {
+			// TODO NOSQL
+			return null;
+		}
+
+	}
+
+	@Override
+	@RequestMapping(value = "branch/member", method = RequestMethod.POST)
+	public @ResponseBody List<Branch> getMemberRegistrations(@RequestBody ObjectNode objectNode,
+			@RequestParam String db) {
+		logger.info("Received post request on branch/{}", objectNode.get("svnr").asText());
+		if (db.equals(SQL)) {
+			return sqlController.getMemberRegistrations(objectNode, db);
+		} else {
+			// TODO NOSQL
+			return null;
+		}
+
+	}
+
+	@Override
+	@RequestMapping(value = "trainingsession", method = RequestMethod.POST)
+	public List<TrainingSessionsForMember> getMemberTrainingSessions(@RequestBody ObjectNode objectNode,
+			@RequestParam String db) {
+
+		logger.info("Received get request on trainingsession/{}", objectNode.get("svnr").asText());
+		if (db.equals(SQL)) {
+			return sqlController.getMemberTrainingSessions(objectNode, db);
+		} else {
+			// TODO NOSQL
+			return null;
+		}
+
+	}
+
+	@Override
+	@RequestMapping(value = "login", method = RequestMethod.POST)
+	public Person login(@RequestBody ObjectNode objectNode, @RequestParam String db) {
+		logger.info("Received post request on login");
+
+		if (db.equals(SQL)) {
+			return sqlController.login(objectNode, db);
+		} else {
+			// TODO NOSQL
+			return null;
+		}
+
+	}
+
+	@Override
+	@RequestMapping(value = "top-trainers", method = RequestMethod.GET)
+	public Collection<BestTrainer> getTopTrainers(@RequestParam String db) {
+		logger.info("Received request on /top-trainers");
+		if (db.equals(SQL)) {
+			return sqlController.getTopTrainers(db);
+		} else {
+			// TODO NOSQL
+			return null;
+		}
+
+	}
+
+	@Override
+	@RequestMapping(value = "loyal-members", method = RequestMethod.GET)
+	public Collection<LoyalMember> getLoyalMembers(@RequestParam String db) {
+		logger.info("Received request on /loyal-members");
+		if (db.equals(SQL)) {
+			return sqlController.getLoyalMembers(db);
+		} else {
+			// TODO NOSQL
+			return null;
+		}
+
+	}
+
+	@Override
+	@RequestMapping(value = "migrate", method = RequestMethod.GET)
+	public ResponseEntity<HttpStatus> migrateToNosql() {
+		List<Document> branchList = sqlToNosqlConverter.migrateBranch(dbhelper.getBranchAndEmployees(),
+				dbhelper.getBranchAndEquipment(), roomOperations.findAll());
+		nosqlHelper.createCollection(branchList, "branch");
+		List<Document> trainingSessionList = sqlToNosqlConverter
+				.migrateTrainingsession(dbhelper.getTrainingSessionAndName());
+		nosqlHelper.createCollection(trainingSessionList, "training_session");
+		List<Document> memberList = sqlToNosqlConverter.migrateMember(dbhelper.getMemberAndPersonAndTrainingAndVisit());
+		nosqlHelper.createCollection(memberList, "member");
+		List<Document> employeeList = sqlToNosqlConverter.migrateEmployeeAndTutor(dbhelper.getEmployeeAndTutor());
+		nosqlHelper.createCollection(employeeList, "employee");
 		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "branch/{city}/{zip}/{street}/employee", method = RequestMethod.GET)
-	public @ResponseBody List<PersonNameSvnr> getEmployeeForBranch(@PathVariable String city, @PathVariable String zip,
-			@PathVariable String street) {
-		
-		logger.info("Received get request on branch/{}/{}/{}/employee",city,zip,street);
-		
-		List<Employee> employeeList = employeeOperations.findAllByCity(city);
-		List<PersonNameSvnr> returnList = new ArrayList<PersonNameSvnr>();
-		for(Employee e : employeeList) {
-			
-			Person p = personOperations.getById(e.getSvnr());
-			
-			returnList.add(new PersonNameSvnr(p.getSvnr(), p.getFirstName()));
-		}
-		return returnList;
-	}
-	
-	
-	
-	@RequestMapping(value = "branch/member", method = RequestMethod.POST)
-	public @ResponseBody ArrayList<Branch> getMemberRegistrations(@RequestBody  ObjectNode objectNode) {
-		logger.info("Received post request on branch/{}", objectNode.get("svnr").asText());
-		List<Visit> visitList = visitOperations.findAllByMemberSvnr(objectNode.get("svnr").asLong());
-		ArrayList<Branch> branchList = new ArrayList<Branch>();
-		for (Visit visit : visitList) {
-			Branch b = branchOperations.getById(new BranchID(visit.getStreet(), visit.getCity(), visit.getZip()));
-			branchList.add(new Branch(b.getStreet(), b.getCity(), b.getZip(), b.getName(), b.getArea()));
-		}
-
-		return branchList;
-
-	}
-
-	@RequestMapping(value = "trainingsession", method = RequestMethod.POST)
-	public List<TrainingSessionsForMember> getMemberTrainingSessions(@RequestBody  ObjectNode objectNode) {
-
-		logger.info("Received get request on trainingsession/{}", objectNode.get("svnr").asText());
-		
-		ResultSet rs = dbhelper.getTrainingSessions(objectNode.get("svnr").asText());
-		
-		
-		
-		return handleTrainingRequest(rs);
-
-	}
-
-	@RequestMapping(value = "login", method = RequestMethod.POST)
-	public Person login(@RequestBody ObjectNode objectNode) {
-		logger.info("Received post request on login");
-		Optional<Person> person = personOperations.findOneByPasswordAndUsername(objectNode.get("password").asText(),objectNode.get("username").asText());
-		if(person.isPresent()) {
-			
-			if(memberOperations.existsById(person.get().getSvnr())) {
-				person.get().setRole("member");
-				return person.get();
-			}else if(employeeOperations.existsById(person.get().getSvnr())){
-				person.get().setRole("employee");
-				return person.get();
-			}
-		}
-		
-		
-		
-		
-		// TODO Throw custom exception
-		
-		return null;
-	}
-	
-	
-	@RequestMapping(value = "top-trainers", method = RequestMethod.GET)
-	public Collection<BestTrainer> getTopTrainers() {
-		logger.info("Received request on /top-trainers");
-		ResultSet rs = dbhelper.getBestTrainers();
-		Collection<BestTrainer> trainerList = handleTrainerRequest(rs);
-		return trainerList;
-	}
-	
-	@RequestMapping(value = "loyal-members", method = RequestMethod.GET)
-	public Collection<LoyalMember> getLoyalMembers() {
-		logger.info("Received request on /loyal-members");
-		ResultSet rs = dbhelper.getLoyalMember();
-		Collection<LoyalMember> memberList = handleLoyalMemberRequest(rs);
-		return memberList;
-	}
-	
-	
-	private List<TrainingSessionsForMember> handleTrainingRequest(ResultSet rs){
-		List<TrainingSessionsForMember> returnList = new ArrayList<TrainingSessionsForMember>();
-		 try {
-				while (rs.next()) {
-				      int duration = rs.getInt(1);
-				      int price = rs.getInt(2);
-				      String memberName = rs.getString(3);
-				      String trainerName = rs.getString(4);
-				      returnList.add(new TrainingSessionsForMember(memberName, trainerName, price,duration));
-				      
-			
-				    }
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-			
-			return returnList;
-		
-	}
-	
-	private Collection<BestTrainer> handleTrainerRequest(ResultSet rs){
-		Map<Long,BestTrainer> trainerMap = new HashMap<Long, BestTrainer>();
-		
-	      try {
-			while (rs.next()) {
-			      long employee_svnr = rs.getLong(1);
-			      
-			      if(trainerMap.containsKey(employee_svnr)) {
-			    	  trainerMap.get(employee_svnr).addMemberName(rs.getString(6));
-			      }else {
-			    	  trainerMap.put(employee_svnr, new BestTrainer(rs.getString(7),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(8),rs.getInt(9)));
-			    	  trainerMap.get(employee_svnr).addMemberName(rs.getString(6));
-			      }
-			      
-		
-			    }
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return trainerMap.values();
-		
-	}
-
-	private Collection<LoyalMember> handleLoyalMemberRequest(ResultSet rs){
-		Map<Long,LoyalMember> memberMap = new HashMap<Long, LoyalMember>();
-		
-	      try {
-			while (rs.next()) {
-			      long member_svnr = rs.getLong(2);
-			      
-			      if(memberMap.containsKey(member_svnr)) {
-			    	  memberMap.get(member_svnr).addTrainerName(rs.getString(10));
-			      }else {
-			    	  memberMap.put(member_svnr, new LoyalMember(rs.getString(8),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(9),rs.getInt(6),rs.getInt(7)));
-			    	  memberMap.get(member_svnr).addTrainerName(rs.getString(10));
-			      }
-			      
-		
-			    }
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return memberMap.values();
-		
-	}
-	
 }
