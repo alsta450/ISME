@@ -86,7 +86,7 @@ public class NoSqlHelper {
 					member.getString("lastname"), member.getString("iban"), sqlDate);
 			memberReturn.setRole("member");
 			return memberReturn;
-		} else {
+		} else if (employee != null){
 			java.util.Date date = employee.getDate("birthday");
 			java.sql.Date sqlDate = new java.sql.Date(date.getTime());
 			Person employeeReturn = new Person(employee.getLong("_id"), employee.getString("firstname"),
@@ -94,6 +94,7 @@ public class NoSqlHelper {
 			employeeReturn.setRole("employee");
 			return employeeReturn;
 		}
+		return null;
 	}
 
 	public List<PersonNameSvnr> getEmployeeForBranch(String city, String zip, String street, String db) {
@@ -117,7 +118,7 @@ public class NoSqlHelper {
 								Aggregates.unwind("$employee_svnr"),
 								new Document("$lookup",
 										new Document().append("from", "employee").append("localField", "employee_svnr")
-												.append("foreignField", "_id").append("as", "employee_data")),
+												.append("foreignField", "_id").append("as", "employee_data")), 
 								Aggregates.unwind("$employee_data")))
 				.into(d);
 		for (Document employee : d) {

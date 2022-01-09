@@ -174,7 +174,7 @@ public class FitnessCenterController extends AController {
 			
 			return nosqlController.getMemberTrainingSessions(objectNode, db);
 		}
-
+ 
 	}
 
 	@Override

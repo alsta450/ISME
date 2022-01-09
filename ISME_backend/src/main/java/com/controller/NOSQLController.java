@@ -24,7 +24,7 @@ import com.report.LoyalMember;
 @Service
 public class NOSQLController extends AController {
 	private NoSqlHelper noSQLHelper = new NoSqlHelper();
-	
+	 
 	@Override
 	public ResponseEntity<HttpStatus> ceateAllEntries() {
 		//Not used
