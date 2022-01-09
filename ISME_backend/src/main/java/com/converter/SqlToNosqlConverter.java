@@ -29,9 +29,9 @@ public class SqlToNosqlConverter {
 				skip = false;
 
 				for (Document d : branch) {
-					if (d.get("city").equals(branchAndEmployee.getString("city"))
-							&& d.get("street").equals(branchAndEmployee.getString("street"))
-							&& d.get("zip").equals(branchAndEmployee.getString("zip"))) {
+					if (d.get("_id",Document.class).get("city").equals(branchAndEmployee.getString("city"))
+							&& d.get("_id",Document.class).get("street").equals(branchAndEmployee.getString("street"))
+							&& d.get("_id",Document.class).get("zip").equals(branchAndEmployee.getString("zip"))) {
 						((ArrayList<Long>) d.getList("employee_svnr", Long.class))
 								.add(branchAndEmployee.getLong("svnr"));
 						skip = true;
@@ -40,10 +40,9 @@ public class SqlToNosqlConverter {
 
 				}
 				if (!skip) {
-					branch.add(new Document().append("city", branchAndEmployee.getString("city"))
+					branch.add(new Document("_id",new Document().append("city", branchAndEmployee.getString("city"))
 							.append("zip", branchAndEmployee.getString("zip"))
-							.append("street", branchAndEmployee.getString("street"))
-							.append("city", branchAndEmployee.getString("city"))
+							.append("street", branchAndEmployee.getString("street")))
 							.append("area", branchAndEmployee.getInt("area"))
 							.append("name", branchAndEmployee.getString("name")).append("employee_svnr",
 									new ArrayList<>(Arrays.asList(branchAndEmployee.getLong("svnr")))));
@@ -51,9 +50,9 @@ public class SqlToNosqlConverter {
 			}
 			while (branchAndEquipment.next()) {
 				for (Document d : branch) {
-					if (d.get("city").equals(branchAndEquipment.getString("city"))
-							&& d.get("street").equals(branchAndEquipment.getString("street"))
-							&& d.get("zip").equals(branchAndEquipment.getString("zip"))) {
+					if (d.get("_id",Document.class).get("city").equals(branchAndEquipment.getString("city"))
+							&& d.get("_id",Document.class).get("street").equals(branchAndEquipment.getString("street"))
+							&& d.get("_id",Document.class).get("zip").equals(branchAndEquipment.getString("zip"))) {
 						if (d.containsKey("fitness_equipments")) {
 							((ArrayList<String>) d.getList("fitness_equipments", String.class))
 									.add(branchAndEquipment.getString("description"));
@@ -68,8 +67,8 @@ public class SqlToNosqlConverter {
 
 			for (Room room : roomList) {
 				for (Document d : branch) {
-					if (d.get("city").equals(room.getCity()) && d.get("street").equals(room.getStreet())
-							&& d.get("zip").equals(room.getZip())) {
+					if (d.get("_id",Document.class).get("city").equals(room.getCity()) && d.get("_id",Document.class).get("street").equals(room.getStreet())
+							&& d.get("_id",Document.class).get("zip").equals(room.getZip())) {
 						if (d.containsKey("rooms")) {
 							((ArrayList<Document>) d.getList("rooms", Document.class))
 									.add(new Document().append("room_number", room.getRoomNumber())
@@ -96,7 +95,7 @@ public class SqlToNosqlConverter {
 		try {
 			while (trainingSessionAndName.next()) {
 				trainingSessionsList
-						.add(new Document().append("trainings_id", trainingSessionAndName.getInt("trainings_id"))
+						.add(new Document("_id",trainingSessionAndName.getInt("trainings_id"))
 								.append("duration", trainingSessionAndName.getInt("duration"))
 								.append("price", trainingSessionAndName.getInt("price")).append("employee",
 										new Document().append("svnr", trainingSessionAndName.getLong("employee_svnr"))
@@ -104,7 +103,6 @@ public class SqlToNosqlConverter {
 			}
 			return trainingSessionsList;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -119,7 +117,7 @@ public class SqlToNosqlConverter {
 			while (member.next()) {
 				skipOuter = false;
 				for (Document d : memberList) {
-					if (d.get("svnr").toString().equals(member.getString("svnr"))) {
+					if (d.get("_id").toString().equals(member.getString("svnr"))) {
 						if (!d.getList("trainings_id", Integer.class).contains(member.getInt("trainings_id"))) {
 							d.getList("trainings_id", Integer.class).add(member.getInt("trainings_id"));
 						}
@@ -140,7 +138,7 @@ public class SqlToNosqlConverter {
 					}
 				}
 				if (!skipOuter) {
-					memberList.add(new Document().append("svnr", member.getString("svnr"))
+					memberList.add(new Document("_id",member.getLong("svnr"))
 							.append("abo", member.getString("abo")).append("fee", member.getInt("fee"))
 							.append("birthday", member.getString("birthday"))
 							.append("firstname", member.getString("firstname"))
@@ -168,17 +166,17 @@ public class SqlToNosqlConverter {
 			while (employee.next()) {
 				boolean skip = false;
 				for (Document d : employeeList) {
-					if (d.get("svnr").toString().equals(employee.getString("svnr"))) {
+					if (d.get("_id").toString().equals(employee.getString("svnr"))) {
 						d.getList("tutor", Long.class).add(employee.getLong("tutor"));
 						skip = true;
 						continue;
 					}
 				}
 				if (!skip) {
-					employeeList.add(new Document().append("svnr", employee.getLong("svnr"))
+					employeeList.add(new Document("_id",employee.getLong("svnr"))
 							.append("hours", employee.getInt("hours"))
 							.append("qualification", employee.getString("qualification"))
-							.append("wage", employee.getInt("wage")).append("birthday", employee.getString("birthday"))
+							.append("wage", employee.getInt("wage")).append("birthday", employee.getDate("birthday"))
 							.append("firstname", employee.getString("firstname"))
 							.append("iban", employee.getString("iban"))
 							.append("lastname", employee.getString("lastname"))

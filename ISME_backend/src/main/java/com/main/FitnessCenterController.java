@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.controller.NOSQLController;
 import com.controller.SQLController;
 import com.converter.SqlToNosqlConverter;
 import com.entities.Branch;
@@ -41,9 +42,12 @@ public class FitnessCenterController extends AController {
 	private SqlToNosqlConverter sqlToNosqlConverter = new SqlToNosqlConverter();
 	private DatabaseHelper dbhelper = new DatabaseHelper();
 	private NoSqlHelper nosqlHelper = new NoSqlHelper();
+
 	private static final String SQL = "SQL";
 	@Autowired
 	private SQLController sqlController;
+	@Autowired
+	private NOSQLController nosqlController;
 /*
 	@Autowired
 	private PersonOperations personOperations;
@@ -84,7 +88,7 @@ public class FitnessCenterController extends AController {
 		if (db.equals(SQL)) {
 			return sqlController.booking(trainingSession, db);
 		} else {
-			// TODO NOSQL
+			nosqlController.booking(trainingSession, db);
 		}
 
 		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
@@ -112,8 +116,7 @@ public class FitnessCenterController extends AController {
 		if (db.equals(SQL)) {
 			return sqlController.getAllBranches(db);
 		} else {
-			// TODO NOSQL
-			return null;
+			return nosqlController.getAllBranches(db);
 		}
 
 	}
@@ -127,8 +130,7 @@ public class FitnessCenterController extends AController {
 		if (db.equals(SQL)) {
 			return sqlController.registerForBranch(city, zip, street, objectNode, db);
 		} else {
-			// TODO NOSQL
-			return null;
+			return nosqlController.registerForBranch(city, zip, street, objectNode, db);
 		}
 
 	}
@@ -142,8 +144,7 @@ public class FitnessCenterController extends AController {
 		if (db.equals(SQL)) {
 			return sqlController.getEmployeeForBranch(city, zip, street, db);
 		} else {
-			// TODO NOSQL
-			return null;
+			return nosqlController.getEmployeeForBranch(city, zip, street, db);
 		}
 
 	}
@@ -171,7 +172,7 @@ public class FitnessCenterController extends AController {
 		if (db.equals(SQL)) {
 			return sqlController.getMemberTrainingSessions(objectNode, db);
 		} else {
-			// TODO NOSQL
+
 			return null;
 		}
 
@@ -185,8 +186,8 @@ public class FitnessCenterController extends AController {
 		if (db.equals(SQL)) {
 			return sqlController.login(objectNode, db);
 		} else {
-			// TODO NOSQL
-			return null;
+			return nosqlController.login(objectNode, db);
+
 		}
 
 	}
@@ -211,7 +212,7 @@ public class FitnessCenterController extends AController {
 		if (db.equals(SQL)) {
 			return sqlController.getLoyalMembers(db);
 		} else {
-			// TODO NOSQL
+
 			return null;
 		}
 

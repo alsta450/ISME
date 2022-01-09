@@ -68,6 +68,7 @@ public class Person {
 		this.birthday=birthday;
 	}
 
+
 	public void setRole(String role) {
 		this.role = role;
 	}

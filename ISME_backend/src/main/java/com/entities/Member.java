@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Table(name = "Member")
 
 public class Member{
+	
 	@Id
 	@Column(name = "svnr")
 	@JsonProperty("svnr")
