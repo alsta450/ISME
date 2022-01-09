@@ -47,7 +47,10 @@ public class NOSQLController extends AController {
 		Iterable<Document> branches = noSQLHelper.getCollection("branch");
 		List<Branch> branchList = new ArrayList<Branch>();
 		for(Document d : branches) {
-			branchList.add(new Branch(d.getString("street"),d.getString("city"),d.getString("zip"),d.getString("name"),String.valueOf(d.getInteger("area"))));
+			branchList.add(new Branch(d.get("_id",Document
+					.class).getString("street"),d.get("_id",Document
+							.class).getString("city"),d.get("_id",Document
+									.class).getString("zip"),d.getString("name"),String.valueOf(d.getInteger("area"))));
 		}
 		return branchList;
 	}

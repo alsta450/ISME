@@ -140,7 +140,7 @@ public class SqlToNosqlConverter {
 				if (!skipOuter) {
 					memberList.add(new Document("_id",member.getLong("svnr"))
 							.append("abo", member.getString("abo")).append("fee", member.getInt("fee"))
-							.append("birthday", member.getString("birthday"))
+							.append("birthday", member.getDate("birthday"))
 							.append("firstname", member.getString("firstname"))
 							.append("lastname", member.getString("lastname")).append("iban", member.getString("iban"))
 							.append("password", member.getString("password"))
