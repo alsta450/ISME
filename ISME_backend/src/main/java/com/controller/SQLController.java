@@ -235,7 +235,7 @@ public class SQLController extends AController {
 		ResultSet rs = dbhelper.getTrainingSessions(objectNode.get("svnr").asText());
 
 		return handleTrainingRequest(rs);
-	}
+	} 
 
 	@Override
 	public Person login(ObjectNode objectNode, @RequestParam String db) {

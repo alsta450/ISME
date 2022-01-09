@@ -3,12 +3,15 @@ package com.nosql;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.print.Doc;
 
 import org.bson.Document;
 
+import com.entities.Branch;
 import com.entities.Person;
 import com.entities.PersonNameSvnr;
 import com.entities.TrainingSession;
+import com.entities.TrainingSessionsForMember;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -97,25 +100,77 @@ public class NoSqlHelper {
 		String s = "db.branch.aggregate([\r\n"
 				+ "  {$match: {_id:{city:\"Beicang\",zip:\"4721\",street:\"Manufacturers\"}}},\r\n" + "  {\r\n"
 				+ "  $unwind: \"$employee_svnr\"\r\n" + "},\r\n" + "        {\r\n" + "            $lookup:\r\n"
-				+ "            {\r\n"
-				+ "                from: \"employee\",\r\n"
+				+ "            {\r\n" + "                from: \"employee\",\r\n"
 				+ "                localField: \"employee_svnr\",\r\n" + "                foreignField: \"_id\",\r\n"
 				+ "                as: \"employee_data\"\r\n" + "            }\r\n"
 				+ "        },{  $unwind: \"$employee_data\"}\r\n" + "])";
-		
+
 		List<PersonNameSvnr> returnList = new ArrayList<PersonNameSvnr>();
 		MongoCollection<Document> branchCollection = database.getCollection("branch");
 		List<Document> d = new ArrayList<Document>();
-		branchCollection.aggregate(Arrays.asList(Aggregates.match(
-				new Document("_id", new Document().append("city", city).append("zip", zip).append("street", street))),
-				Aggregates.unwind("$employee_svnr"),  new Document("$lookup",new Document().append("from", "employee").append("localField", "employee_svnr").append("foreignField", "_id").append("as", "employee_data")), Aggregates.unwind("$employee_data"))).into(d);
-		for(Document employee : d) {
-			System.out.println(employee.toJson());
-			returnList.add(new PersonNameSvnr(employee.get("employee_data", Document.class).get("_id",Long.class),employee.get("employee_data", Document.class).get("firstname",String.class))  );
+		branchCollection
+				.aggregate(
+						Arrays.asList(
+								Aggregates.match(new Document("_id",
+										new Document()
+												.append("city", city).append("zip", zip).append("street", street))),
+								Aggregates.unwind("$employee_svnr"),
+								new Document("$lookup",
+										new Document().append("from", "employee").append("localField", "employee_svnr")
+												.append("foreignField", "_id").append("as", "employee_data")),
+								Aggregates.unwind("$employee_data")))
+				.into(d);
+		for (Document employee : d) {
+			returnList.add(new PersonNameSvnr(employee.get("employee_data", Document.class).get("_id", Long.class),
+					employee.get("employee_data", Document.class).get("firstname", String.class)));
 		}
 
 		return returnList;
 
 	}
 
+	public List<Branch> getMemberRegistrations(ObjectNode objectNode, String db) {
+		List<Branch> returnList = new ArrayList<Branch>();
+		MongoCollection<Document> memberCollection = database.getCollection("member");
+		List<Document> d = new ArrayList<Document>();
+		memberCollection.aggregate(Arrays.asList(Aggregates.match(new Document("_id", objectNode.get("svnr").asLong())),
+				Aggregates.unwind("$branch_id"),
+				new Document("$lookup",
+						new Document().append("from", "branch").append("localField", "branch_id")
+								.append("foreignField", "_id").append("as", "branch_data")),
+				Aggregates.unwind("$branch_data"))).into(d);
+		for (Document member : d) {
+			returnList.add(new Branch(member.get("branch_id", Document.class).get("street", String.class),
+					member.get("branch_id", Document.class).get("city", String.class),
+					member.get("branch_id", Document.class).get("zip", String.class),
+					member.get("branch_data", Document.class).get("name", String.class),
+					String.valueOf(member.get("branch_data", Document.class).get("area", Integer.class))));
+		}
+
+		return returnList;
+	}
+
+	public List<TrainingSessionsForMember> getMemberTrainingSessions(ObjectNode objectNode, String db) {
+		List<TrainingSessionsForMember> returnList = new ArrayList<TrainingSessionsForMember>();
+
+		MongoCollection<Document> memberCollection = database.getCollection("member");
+		List<Document> d = new ArrayList<Document>();
+
+		memberCollection.aggregate(Arrays.asList(Aggregates.match(new Document("_id", objectNode.get("svnr").asLong())),
+				Aggregates.unwind("$trainings_id"),
+				new Document("$lookup",
+						new Document().append("from", "training_session").append("localField", "trainings_id")
+								.append("foreignField", "_id").append("as", "training_data")),
+				Aggregates.unwind("$training_data"))).into(d);
+		for (Document member : d) {
+
+			returnList.add(new TrainingSessionsForMember(member.get("firstname", String.class),
+					member.get("training_data", Document.class).get("employee", Document.class).get("firstname",
+							String.class),
+					member.get("training_data", Document.class).get("price", Integer.class),
+					member.get("training_data", Document.class).get("duration", Integer.class)));
+		}
+
+		return returnList;
+	}
 }

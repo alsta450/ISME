@@ -70,14 +70,12 @@ public class NOSQLController extends AController {
  
 	@Override
 	public List<Branch> getMemberRegistrations(ObjectNode objectNode, String db) {
-		// TODO Auto-generated method stub
-		return null;
+		return noSQLHelper.getMemberRegistrations(objectNode, db);
 	}
 
 	@Override
 	public List<TrainingSessionsForMember> getMemberTrainingSessions(ObjectNode objectNode, String db) {
-		// TODO Auto-generated method stub
-		return null;
+		return noSQLHelper.getMemberTrainingSessions(objectNode, db);
 	}
 
 	@Override

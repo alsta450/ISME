@@ -157,8 +157,7 @@ public class FitnessCenterController extends AController {
 		if (db.equals(SQL)) {
 			return sqlController.getMemberRegistrations(objectNode, db);
 		} else {
-			// TODO NOSQL
-			return null;
+			return nosqlController.getMemberRegistrations(objectNode, db);
 		}
 
 	}
@@ -172,8 +171,8 @@ public class FitnessCenterController extends AController {
 		if (db.equals(SQL)) {
 			return sqlController.getMemberTrainingSessions(objectNode, db);
 		} else {
-
-			return null;
+			
+			return nosqlController.getMemberTrainingSessions(objectNode, db);
 		}
 
 	}
