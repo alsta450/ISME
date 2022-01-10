@@ -198,8 +198,7 @@ public class FitnessCenterController extends AController {
 		if (db.equals(SQL)) {
 			return sqlController.getTopTrainers(db);
 		} else {
-			// TODO NOSQL
-			return null;
+			return nosqlController.getTopTrainers(db);
 		}
 
 	}

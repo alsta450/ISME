@@ -2,8 +2,10 @@ package com.nosql;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import javax.print.Doc;
+import java.util.Map;
 
 import org.bson.Document;
 
@@ -18,6 +20,7 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Aggregates;
+import com.report.BestTrainer;
 
 public class NoSqlHelper {
 	private MongoClient mongoClient;
@@ -86,7 +89,7 @@ public class NoSqlHelper {
 					member.getString("lastname"), member.getString("iban"), sqlDate);
 			memberReturn.setRole("member");
 			return memberReturn;
-		} else if (employee != null){
+		} else if (employee != null) {
 			java.util.Date date = employee.getDate("birthday");
 			java.sql.Date sqlDate = new java.sql.Date(date.getTime());
 			Person employeeReturn = new Person(employee.getLong("_id"), employee.getString("firstname"),
@@ -118,7 +121,7 @@ public class NoSqlHelper {
 								Aggregates.unwind("$employee_svnr"),
 								new Document("$lookup",
 										new Document().append("from", "employee").append("localField", "employee_svnr")
-												.append("foreignField", "_id").append("as", "employee_data")), 
+												.append("foreignField", "_id").append("as", "employee_data")),
 								Aggregates.unwind("$employee_data")))
 				.into(d);
 		for (Document employee : d) {
@@ -174,4 +177,88 @@ public class NoSqlHelper {
 
 		return returnList;
 	}
+
+	public Collection<BestTrainer> getTopTrainers() {
+		Map<Long, BestTrainer> returnList = new HashMap<Long, BestTrainer>();
+		MongoCollection<Document> trainingCollection = database.getCollection("training_session");
+		List<Document> d = new ArrayList<Document>();
+
+		String s = "db.training_session.aggregate([{$group: { _id : \"$employee\",count:{$sum:1}} }, { $sort: { count: -1}},{$lookup:{from:\"branch\",             let: { employeeId: \"$_id.svnr\" },\r\n"
+				+ "            pipeline: [\r\n"
+				+ "                { $match:{ $expr: { $in:  [ \"$$employeeId\", \"$employee_svnr\" ] }  } }\r\n"
+				+ "            ],as:\"test\"}},{\"$unwind\":\"$test\"},{\"$group\":    {'_id': {\r\n" + "\r\n"
+				+ "            'city':'$test._id.city',\r\n" + "            'zip':'$test._id.zip',\r\n"
+				+ "            'street':'$test._id.street',\r\n" + "\r\n" + "},\r\n"
+				+ "session_count : {$first: '$count'}, \r\n" + "employee_info: {$first:'$_id'}\r\n"
+				+ "            }\r\n"
+				+ "    },{$lookup:{from: \"training_session\", localField:\"employee_info\",foreignField:\"employee\",as:\"test2\" } },\r\n"
+				+ "    {$addFields: {\"test\":\"$test2._id\"}},"
+				+ "{$project:{\"_id\":1,\"session_count\":1,\"employee_info\":1,\"test\":1} }, {\"$unwind\": \"$test\"}, \r\n"
+				+ "    {$lookup:{from:\"member\", let: {testa:\"$test\"},\r\n" + "            pipeline: [\r\n"
+				+ "                { $match:{ $expr: { $in:  [ \"$$testa\", \"$trainings_id\" ] }  } } \r\n"
+				+ "            ],as:\"test5\"}},{\"$unwind\":\"$test5\"}, {$project:{\"_id\":1,\"session_count\":1,\"employee_info\":1,\"test\":1,\"test5.firstname\":1} }";
+
+		trainingCollection
+				.aggregate(Arrays.asList(new Document("$group",
+						new Document("_id", new Document("employee", "$employee"))
+								.append("count", new Document("$sum", 1))),
+						new Document("$sort", new Document("count", -1)),
+						new Document("$lookup", new Document("from", "branch")
+								.append("let", new Document("employeeId", "$_id.employee.svnr"))
+								.append("pipeline", Arrays.asList(new Document("$match",
+										new Document("$expr",
+												new Document("$in", Arrays.asList("$$employeeId", "$employee_svnr"))))))
+								.append("as", "best_employees")),
+						new Document("$unwind", "$best_employees"),
+
+						new Document("$group",
+								new Document("_id",
+										new Document("city", "$best_employees._id.city")
+												.append("zip", "$best_employees._id.zip")
+												.append("street", "$best_employees._id.street"))
+														.append("session_count", new Document("$first", "$count"))
+														.append("employee_info", new Document("$first", "$_id"))
+														.append("branch_name",
+																new Document("$first", "$best_employees.name"))),
+
+						new Document("$lookup",
+								new Document("from", "training_session").append("localField", "employee_info.employee")
+										.append("foreignField", "employee").append("as", "training")),
+						new Document("$addFields", new Document("training_sessions", "$training._id")),
+						new Document("$project",
+								new Document("_id", 1).append("session_count", 1).append("employee_info", 1)
+										.append("training_sessions", 1).append("branch_name", 1)),
+						new Document("$unwind", "$training_sessions"),
+						new Document("$lookup",
+								new Document("from", "member")
+										.append("let", new Document("training_sessions", "$training_sessions"))
+										.append("pipeline", Arrays.asList(new Document("$match", new Document("$expr",
+												new Document("$in",
+														Arrays.asList("$$training_sessions", "$trainings_id"))))))
+										.append("as", "member_info")),
+						new Document("$unwind", "$member_info"),
+						new Document("$project",
+								new Document("_id", 1).append("session_count", 1).append("employee_info", 1)
+										.append("training_sessions", 1).append("branch_name", 1)
+										.append("member_info.firstname", 1))))
+				.into(d);
+
+		for (Document info : d) {
+			if (!returnList.containsKey(info.get("employee_info", Document.class).get("employee", Document.class).getLong("svnr"))) {
+				returnList.put(info.get("employee_info", Document.class).get("employee", Document.class).getLong("svnr"),
+						new BestTrainer(info.get("employee_info", Document.class).get("employee", Document.class).getString("firstname"),
+								info.get("_id", Document.class).getString("zip"),
+								info.get("_id", Document.class).getString("street"),
+								info.get("_id", Document.class).getString("city"), info.getString("branch_name"),
+								info.getInteger("session_count")));
+				returnList.get(info.get("employee_info", Document.class).get("employee", Document.class).getLong("svnr"))
+						.addMemberName(info.get("member_info", Document.class).getString("firstname"));
+			} else {
+				returnList.get(info.get("employee_info", Document.class).get("employee", Document.class).getLong("svnr"))
+						.addMemberName(info.get("member_info", Document.class).getString("firstname"));
+			}
+		}
+		return returnList.values();
+	}
+
 }

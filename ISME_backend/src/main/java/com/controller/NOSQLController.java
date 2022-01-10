@@ -88,8 +88,7 @@ public class NOSQLController extends AController {
 
 	@Override
 	public Collection<BestTrainer> getTopTrainers(String db) {
-		// TODO Auto-generated method stub
-		return null;
+		return noSQLHelper.getTopTrainers();
 	}
 
 	@Override
