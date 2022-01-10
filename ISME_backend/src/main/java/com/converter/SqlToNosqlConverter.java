@@ -4,9 +4,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +17,7 @@ import com.entities.Room;
 
 public class SqlToNosqlConverter {
 	private static Logger logger = LoggerFactory.getLogger(SqlToNosqlConverter.class);
-
-	public void migrateMemberPerson(ResultSet member, ResultSet person) {
-
-	}
+	private Map<Integer,ObjectId> trainingsIds = new HashMap<Integer,ObjectId>();
 
 	public List<Document> migrateBranch(ResultSet branchAndEmployee, ResultSet branchAndEquipment,
 			List<Room> roomList) {
@@ -94,8 +94,10 @@ public class SqlToNosqlConverter {
 		List<Document> trainingSessionsList = new ArrayList<Document>();
 		try {
 			while (trainingSessionAndName.next()) {
+				ObjectId id = new ObjectId();
+				trainingsIds.put(trainingSessionAndName.getInt("trainings_id"), id);
 				trainingSessionsList
-						.add(new Document("_id",trainingSessionAndName.getInt("trainings_id"))
+						.add(new Document("_id",id)
 								.append("duration", trainingSessionAndName.getInt("duration"))
 								.append("price", trainingSessionAndName.getInt("price")).append("employee",
 										new Document().append("svnr", trainingSessionAndName.getLong("employee_svnr"))
@@ -118,8 +120,10 @@ public class SqlToNosqlConverter {
 				skipOuter = false;
 				for (Document d : memberList) {
 					if (d.get("_id").toString().equals(member.getString("svnr"))) {
-						if (!d.getList("trainings_id", Integer.class).contains(member.getInt("trainings_id"))) {
-							d.getList("trainings_id", Integer.class).add(member.getInt("trainings_id"));
+						if(member.getInt("trainings_id")!=0) {
+						if (!d.getList("trainings_id", ObjectId.class).contains( trainingsIds.get(member.getInt("trainings_id")))) {
+							d.getList("trainings_id", ObjectId.class).add(trainingsIds.get(member.getInt("trainings_id")));
+						}
 						}
 						boolean skip = false;
 						for (Document branch : d.getList("branch_id", Document.class)) {
@@ -145,7 +149,7 @@ public class SqlToNosqlConverter {
 							.append("lastname", member.getString("lastname")).append("iban", member.getString("iban"))
 							.append("password", member.getString("password"))
 							.append("username", member.getString("username"))
-							.append("trainings_id", new ArrayList<>(Arrays.asList(member.getInt("trainings_id"))))
+							.append("trainings_id", new ArrayList<>(Arrays.asList( trainingsIds.get(member.getInt("trainings_id")))))
 							.append("branch_id", new ArrayList<>(Arrays.asList(new Document()
 									.append("city", member.getString("city")).append("zip", member.getString("zip"))
 									.append("street", member.getString("street"))))));
