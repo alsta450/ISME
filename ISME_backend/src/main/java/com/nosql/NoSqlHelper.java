@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 
 import com.entities.Branch;
 import com.entities.Person;
@@ -49,25 +51,34 @@ public class NoSqlHelper {
 	public void bookSession(TrainingSession trainingSession) {
 		MongoCollection<Document> collectionTraining = database.getCollection("training_session");
 		MongoCollection<Document> collectionEmployee = database.getCollection("employee");
+		MongoCollection<Document> collectionMember = database.getCollection("member");
 		Document query = new Document("_id", trainingSession.getEmployeeSvnr());
 		Document name = collectionEmployee.find(query).first();
 
-		Document d = new Document().append("duration", trainingSession.getDuration())
+		ObjectId id = new ObjectId();
+		
+		Document d = new Document("_id",id).append("duration", trainingSession.getDuration())
 				.append("price", trainingSession.getPrice()).append("employee", new Document()
 						.append("svnr", trainingSession.getEmployeeSvnr()).append("firstname", name.get("firstname")));
 
 		collectionTraining.insertOne(d);
+		
+		collectionMember.findOneAndUpdate(new Document("_id",trainingSession.getMemberSvnr()), new Document("$push",new Document("trainings_id",id)));
+		
 	}
 
 	public void registerForBranch(String city, String zip, String street, ObjectNode objectNode) {
 		MongoCollection<Document> memberCollection = database.getCollection("member");
 		Document query = new Document("_id", objectNode.get("svnr").asLong());
 		Document member = memberCollection.find(query).first();
-		// Bson setUpdate = set("session.ps.$[elem].apn", "newValue");
-		memberCollection.findOneAndUpdate(query, new Document("$push", new Document("branch_id",
-				new Document().append("city", city).append("zip", zip).append("street", street))));
-		// member.getList("branch_id",Document.class).add(new
-		// Document().append("city",city).append("zip",zip).append("street",street));
+
+		Document update = new Document("$addToSet", new Document("branch_id",
+				new Document().append("city", city).append("zip", zip).append("street", street)));
+	//	memberCollection.findOneAndUpdate(query, new Document("$push", new Document("branch_id",
+	//			new Document().append("city", city).append("zip", zip).append("street", street))));
+		
+		memberCollection.updateOne(query, update);
+
 	}
 
 	public Person login(ObjectNode objectNode, String db) {
