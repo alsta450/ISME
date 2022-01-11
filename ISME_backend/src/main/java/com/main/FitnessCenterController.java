@@ -211,7 +211,7 @@ public class FitnessCenterController extends AController {
 			return sqlController.getLoyalMembers(db);
 		} else {
 
-			return null;
+			return nosqlController.getLoyalMembers(db);
 		}
 
 	}

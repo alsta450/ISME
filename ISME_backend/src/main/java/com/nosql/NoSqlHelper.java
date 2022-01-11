@@ -21,6 +21,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Aggregates;
 import com.report.BestTrainer;
+import com.report.LoyalMember;
 
 public class NoSqlHelper {
 	private MongoClient mongoClient;
@@ -244,21 +245,124 @@ public class NoSqlHelper {
 				.into(d);
 
 		for (Document info : d) {
-			if (!returnList.containsKey(info.get("employee_info", Document.class).get("employee", Document.class).getLong("svnr"))) {
-				returnList.put(info.get("employee_info", Document.class).get("employee", Document.class).getLong("svnr"),
-						new BestTrainer(info.get("employee_info", Document.class).get("employee", Document.class).getString("firstname"),
+			if (!returnList.containsKey(
+					info.get("employee_info", Document.class).get("employee", Document.class).getLong("svnr"))) {
+				returnList.put(
+						info.get("employee_info", Document.class).get("employee", Document.class).getLong("svnr"),
+						new BestTrainer(
+								info.get("employee_info", Document.class).get("employee", Document.class)
+										.getString("firstname"),
 								info.get("_id", Document.class).getString("zip"),
 								info.get("_id", Document.class).getString("street"),
 								info.get("_id", Document.class).getString("city"), info.getString("branch_name"),
 								info.getInteger("session_count")));
-				returnList.get(info.get("employee_info", Document.class).get("employee", Document.class).getLong("svnr"))
+				returnList
+						.get(info.get("employee_info", Document.class).get("employee", Document.class).getLong("svnr"))
 						.addMemberName(info.get("member_info", Document.class).getString("firstname"));
 			} else {
-				returnList.get(info.get("employee_info", Document.class).get("employee", Document.class).getLong("svnr"))
+				returnList
+						.get(info.get("employee_info", Document.class).get("employee", Document.class).getLong("svnr"))
 						.addMemberName(info.get("member_info", Document.class).getString("firstname"));
 			}
 		}
 		return returnList.values();
+	}
+
+	public Collection<LoyalMember> getLoyalMembers() {
+		List<LoyalMember> returnList = new ArrayList<LoyalMember>();
+		MongoCollection<Document> trainingCollection = database.getCollection("training_session");
+		List<Document> d = new ArrayList<Document>();
+		String s = "db.training_session.aggregate([\r\n"
+				+ "   {$lookup:{from:\"member\", let: {training_id:\"$_id\"},\r\n" + "            pipeline: [\r\n"
+				+ "                { $match:{ $expr: { $in:  [ \"$$training_id\", \"$trainings_id\" ] }  }}],as:\"training_join\"  }}\r\n"
+				+ "    ,{$unwind: \"$training_join\"}\r\n"
+				+ "    ,   {$lookup:{from:\"branch\", let: {employee_svnr:\"$employee.svnr\"},\r\n"
+				+ "            pipeline: [\r\n"
+				+ "                { $match:{ $expr: { $in:  [ \"$$employee_svnr\", \"$employee_svnr\" ] }  }}],as:\"branch_join\"  }}\r\n"
+				+ "                ,{$unwind: \"$branch_join\"}\r\n"
+				+ "                ,{$project:{\"_id\":1,\"employee\":1,\"training_join._id\":1,\"training_join.firstname\":1,\"branch_join._id\":1,\"branch_join.name\":1,\"price\":1}}\r\n"
+				+ "    ,{\"$group\":    {'_id': {\r\n" + "            'city':'$branch_join._id.city',\r\n"
+				+ "            'zip':'$branch_join._id.zip',\r\n"
+				+ "            'street':'$branch_join._id.street',\r\n" + "            'member':'$training_join',\r\n"
+				+ "\r\n" + "\r\n" + "},'count': {$sum:1}\r\n"
+				+ "      ,'branch_name':{$first:\"$branch_join.name\"}\r\n"
+				+ "      ,'trainer_info' : { $addToSet: '$employee' },\r\n" + "      'price': {$sum:'$price'}\r\n"
+				+ "    } \r\n" + "    },{$sort:{count:-1}}\r\n" + "    ,{\"$group\":    {'_id': {\r\n"
+				+ "            'city':'$_id.city',\r\n" + "            'zip':'$_id.zip',\r\n"
+				+ "            'street':'$_id.street',\r\n" + "}\r\n"
+				+ "      ,'branch_name':{$first:\"$branch_name\"}\r\n"
+				+ "      ,'member_info':{$first:\"$_id.member\"},\r\n"
+				+ "      \"trainer_info\":{$first:\"$trainer_info\"},\r\n" + "      'price': {$first:'$price'}\r\n"
+				+ "    } \r\n" + "    },{$sort:{price:-1}},\r\n" + "  ])";
+
+		trainingCollection
+				.aggregate(
+						Arrays.asList(
+								new Document("$lookup", new Document("from", "member")
+										.append("let", new Document("training_id", "$_id"))
+										.append("pipeline",
+												Arrays.asList(new Document("$match", new Document("$expr",
+														new Document("$in",
+																Arrays.asList("$$training_id", "$trainings_id"))))))
+										.append("as", "training_join")),
+								new Document("$unwind", "$training_join"),
+								new Document("$lookup", new Document("from", "branch")
+										.append("let", new Document("employee_svnr", "$employee.svnr"))
+										.append("pipeline",
+												Arrays.asList(new Document("$match", new Document("$expr",
+														new Document("$in",
+																Arrays.asList("$$employee_svnr", "$employee_svnr"))))))
+										.append("as", "branch_join")),
+								new Document("$unwind", "$branch_join"),
+								new Document("$project",
+										new Document("_id", 1).append("employee", 1).append("training_join._id", 1)
+												.append("training_join.firstname", 1).append("branch_join._id", 1)
+												.append("branch_join.name", 1).append("price", 1)),
+
+								new Document("$group", new Document("_id", new Document("city", "$branch_join._id.city")
+										.append("zip", "$branch_join._id.zip")
+										.append("street", "$branch_join._id.street").append("member", "$training_join"))
+												.append("count", new Document("$sum", 1))
+												.append("branch_name",
+														new Document("$first", "$branch_join.name"))
+												.append("trainer_info", new Document("$addToSet", "$employee"))
+												.append("price", new Document("$sum", "$price"))),
+								new Document("$sort", new Document("count", -1)),
+
+								new Document("$group",
+										new Document("_id",
+												new Document("city", "$_id.city").append("zip", "$_id.zip")
+														.append("street", "$_id.street"))
+																.append("count", new Document("$first", "$count"))
+																.append("branch_name",
+																		new Document("$first", "$branch_name"))
+																.append("trainer_info",
+																		new Document("$first", "$trainer_info"))
+																.append("member_info",
+																		new Document("$first", "$_id.member"))
+																.append("price", new Document("$first", "$price"))),
+								new Document("$sort", new Document("price", -1))
+
+						))
+
+				.into(d);
+
+		for (Document doc : d) {
+
+			LoyalMember m = new LoyalMember(doc.get("member_info", Document.class).getString("firstname"),
+					doc.get("_id", Document.class).getString("zip"), doc.get("_id", Document.class).getString("street"),
+					doc.get("_id", Document.class).getString("city"), doc.getString("branch_name"),
+					doc.getInteger("price"), doc.getInteger("count"));
+
+			for (Document trainer : doc.getList("trainer_info", Document.class)) {
+				m.addTrainerName(trainer.getString("firstname"));
+			}
+
+			returnList.add(m);
+
+		}
+
+		return returnList;
 	}
 
 }

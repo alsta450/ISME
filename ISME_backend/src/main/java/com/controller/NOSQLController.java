@@ -93,8 +93,7 @@ public class NOSQLController extends AController {
 
 	@Override
 	public Collection<LoyalMember> getLoyalMembers(String db) {
-		// TODO Auto-generated method stub
-		return null;
+		return noSQLHelper.getLoyalMembers();
 	}
 
 	@Override
