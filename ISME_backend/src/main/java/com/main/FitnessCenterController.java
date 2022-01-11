@@ -222,13 +222,17 @@ public class FitnessCenterController extends AController {
 		List<Document> branchList = sqlToNosqlConverter.migrateBranch(dbhelper.getBranchAndEmployees(),
 				dbhelper.getBranchAndEquipment(), roomOperations.findAll());
 		nosqlHelper.createCollection(branchList, "branch");
+		
 		List<Document> trainingSessionList = sqlToNosqlConverter
 				.migrateTrainingsession(dbhelper.getTrainingSessionAndName());
 		nosqlHelper.createCollection(trainingSessionList, "training_session");
+		nosqlHelper.indexing("training_session", "_id");
 		List<Document> memberList = sqlToNosqlConverter.migrateMember(dbhelper.getMemberAndPersonAndTrainingAndVisit());
 		nosqlHelper.createCollection(memberList, "member");
+		nosqlHelper.indexing("member", "_id");
 		List<Document> employeeList = sqlToNosqlConverter.migrateEmployeeAndTutor(dbhelper.getEmployeeAndTutor());
 		nosqlHelper.createCollection(employeeList, "employee");
+		nosqlHelper.indexing("employee", "_id");
 		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
 	}
 

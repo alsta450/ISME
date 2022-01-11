@@ -10,6 +10,8 @@ import java.util.Map;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.entities.Branch;
 import com.entities.Person;
@@ -17,17 +19,20 @@ import com.entities.PersonNameSvnr;
 import com.entities.TrainingSession;
 import com.entities.TrainingSessionsForMember;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.main.FitnessCenterController;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.Indexes;
 import com.report.BestTrainer;
 import com.report.LoyalMember;
 
 public class NoSqlHelper {
 	private MongoClient mongoClient;
 	private MongoDatabase database;
+	private static Logger logger = LoggerFactory.getLogger(NoSqlHelper.class);
 
 	public NoSqlHelper() {
 		this.mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
@@ -43,6 +48,10 @@ public class NoSqlHelper {
 		collection.insertMany(inserts);
 	}
 
+	public void indexing(String collection, String key) {
+		database.getCollection(collection).createIndex(Indexes.ascending(key));
+	}
+
 	public Iterable<Document> getCollection(String name) {
 		MongoCollection<Document> collection = database.getCollection(name);
 		return collection.find();
@@ -56,27 +65,24 @@ public class NoSqlHelper {
 		Document name = collectionEmployee.find(query).first();
 
 		ObjectId id = new ObjectId();
-		
-		Document d = new Document("_id",id).append("duration", trainingSession.getDuration())
+
+		Document d = new Document("_id", id).append("duration", trainingSession.getDuration())
 				.append("price", trainingSession.getPrice()).append("employee", new Document()
 						.append("svnr", trainingSession.getEmployeeSvnr()).append("firstname", name.get("firstname")));
 
 		collectionTraining.insertOne(d);
-		
-		collectionMember.findOneAndUpdate(new Document("_id",trainingSession.getMemberSvnr()), new Document("$push",new Document("trainings_id",id)));
-		
+
+		collectionMember.findOneAndUpdate(new Document("_id", trainingSession.getMemberSvnr()),
+				new Document("$push", new Document("trainings_id", id)));
+
 	}
 
 	public void registerForBranch(String city, String zip, String street, ObjectNode objectNode) {
 		MongoCollection<Document> memberCollection = database.getCollection("member");
 		Document query = new Document("_id", objectNode.get("svnr").asLong());
-		Document member = memberCollection.find(query).first();
 
 		Document update = new Document("$addToSet", new Document("branch_id",
 				new Document().append("city", city).append("zip", zip).append("street", street)));
-	//	memberCollection.findOneAndUpdate(query, new Document("$push", new Document("branch_id",
-	//			new Document().append("city", city).append("zip", zip).append("street", street))));
-		
 		memberCollection.updateOne(query, update);
 
 	}
@@ -194,22 +200,6 @@ public class NoSqlHelper {
 		Map<Long, BestTrainer> returnList = new HashMap<Long, BestTrainer>();
 		MongoCollection<Document> trainingCollection = database.getCollection("training_session");
 		List<Document> d = new ArrayList<Document>();
-
-		String s = "db.training_session.aggregate([{$group: { _id : \"$employee\",count:{$sum:1}} }, { $sort: { count: -1}},{$lookup:{from:\"branch\",             let: { employeeId: \"$_id.svnr\" },\r\n"
-				+ "            pipeline: [\r\n"
-				+ "                { $match:{ $expr: { $in:  [ \"$$employeeId\", \"$employee_svnr\" ] }  } }\r\n"
-				+ "            ],as:\"test\"}},{\"$unwind\":\"$test\"},{\"$group\":    {'_id': {\r\n" + "\r\n"
-				+ "            'city':'$test._id.city',\r\n" + "            'zip':'$test._id.zip',\r\n"
-				+ "            'street':'$test._id.street',\r\n" + "\r\n" + "},\r\n"
-				+ "session_count : {$first: '$count'}, \r\n" + "employee_info: {$first:'$_id'}\r\n"
-				+ "            }\r\n"
-				+ "    },{$lookup:{from: \"training_session\", localField:\"employee_info\",foreignField:\"employee\",as:\"test2\" } },\r\n"
-				+ "    {$addFields: {\"test\":\"$test2._id\"}},"
-				+ "{$project:{\"_id\":1,\"session_count\":1,\"employee_info\":1,\"test\":1} }, {\"$unwind\": \"$test\"}, \r\n"
-				+ "    {$lookup:{from:\"member\", let: {testa:\"$test\"},\r\n" + "            pipeline: [\r\n"
-				+ "                { $match:{ $expr: { $in:  [ \"$$testa\", \"$trainings_id\" ] }  } } \r\n"
-				+ "            ],as:\"test5\"}},{\"$unwind\":\"$test5\"}, {$project:{\"_id\":1,\"session_count\":1,\"employee_info\":1,\"test\":1,\"test5.firstname\":1} }";
-
 		trainingCollection
 				.aggregate(Arrays.asList(new Document("$group",
 						new Document("_id", new Document("employee", "$employee"))
@@ -283,29 +273,6 @@ public class NoSqlHelper {
 		List<LoyalMember> returnList = new ArrayList<LoyalMember>();
 		MongoCollection<Document> trainingCollection = database.getCollection("training_session");
 		List<Document> d = new ArrayList<Document>();
-		String s = "db.training_session.aggregate([\r\n"
-				+ "   {$lookup:{from:\"member\", let: {training_id:\"$_id\"},\r\n" + "            pipeline: [\r\n"
-				+ "                { $match:{ $expr: { $in:  [ \"$$training_id\", \"$trainings_id\" ] }  }}],as:\"training_join\"  }}\r\n"
-				+ "    ,{$unwind: \"$training_join\"}\r\n"
-				+ "    ,   {$lookup:{from:\"branch\", let: {employee_svnr:\"$employee.svnr\"},\r\n"
-				+ "            pipeline: [\r\n"
-				+ "                { $match:{ $expr: { $in:  [ \"$$employee_svnr\", \"$employee_svnr\" ] }  }}],as:\"branch_join\"  }}\r\n"
-				+ "                ,{$unwind: \"$branch_join\"}\r\n"
-				+ "                ,{$project:{\"_id\":1,\"employee\":1,\"training_join._id\":1,\"training_join.firstname\":1,\"branch_join._id\":1,\"branch_join.name\":1,\"price\":1}}\r\n"
-				+ "    ,{\"$group\":    {'_id': {\r\n" + "            'city':'$branch_join._id.city',\r\n"
-				+ "            'zip':'$branch_join._id.zip',\r\n"
-				+ "            'street':'$branch_join._id.street',\r\n" + "            'member':'$training_join',\r\n"
-				+ "\r\n" + "\r\n" + "},'count': {$sum:1}\r\n"
-				+ "      ,'branch_name':{$first:\"$branch_join.name\"}\r\n"
-				+ "      ,'trainer_info' : { $addToSet: '$employee' },\r\n" + "      'price': {$sum:'$price'}\r\n"
-				+ "    } \r\n" + "    },{$sort:{count:-1}}\r\n" + "    ,{\"$group\":    {'_id': {\r\n"
-				+ "            'city':'$_id.city',\r\n" + "            'zip':'$_id.zip',\r\n"
-				+ "            'street':'$_id.street',\r\n" + "}\r\n"
-				+ "      ,'branch_name':{$first:\"$branch_name\"}\r\n"
-				+ "      ,'member_info':{$first:\"$_id.member\"},\r\n"
-				+ "      \"trainer_info\":{$first:\"$trainer_info\"},\r\n" + "      'price': {$first:'$price'}\r\n"
-				+ "    } \r\n" + "    },{$sort:{price:-1}},\r\n" + "  ])";
-
 		trainingCollection
 				.aggregate(
 						Arrays.asList(
@@ -372,7 +339,6 @@ public class NoSqlHelper {
 			returnList.add(m);
 
 		}
-
 		return returnList;
 	}
 
