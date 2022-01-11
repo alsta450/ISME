@@ -1,12 +1,12 @@
 <template>
- <div class="list row">
+  <div class="list row">
     <div class="col-md-6">
       <h4>Top Trainers</h4>
       <table data-link="row">
         <thead>
           <tr>
             <th>Trainer name</th>
-            <th>Member names</th> 
+            <th>Member names</th>
             <th>Branch</th>
             <th>street</th>
             <th>city</th>
@@ -15,21 +15,21 @@
           </tr>
         </thead>
         <tr v-for="(topTrainer, index) in topTrainer" :key="index">
-          <td>{{topTrainer.trainerName}}</td>
-          <td>{{memberNames[index]}}</td>
-          <td>{{topTrainer.branchName}}</td>
-          <td>{{topTrainer.street}}</td>
-          <td>{{topTrainer.city}}</td>
-          <td>{{topTrainer.zip}}</td>
-          <td>{{topTrainer.totalSessions}}</td>
+          <td>{{ topTrainer.trainerName }}</td>
+          <td>{{ memberNames[index] }}</td>
+          <td>{{ topTrainer.branchName }}</td>
+          <td>{{ topTrainer.street }}</td>
+          <td>{{ topTrainer.city }}</td>
+          <td>{{ topTrainer.zip }}</td>
+          <td>{{ topTrainer.totalSessions }}</td>
         </tr>
       </table>
     </div>
- </div>
+  </div>
 </template>
 
 <script>
-import FitnessCenterService from '../services/FitnessCenterService';
+import FitnessCenterService from "../services/FitnessCenterService";
 export default {
   data() {
     return {
@@ -42,16 +42,16 @@ export default {
       FitnessCenterService.topTrainers()
         .then((response) => {
           this.topTrainer = response.data;
-          for(const trainers of this.topTrainer){
+          for (const trainers of this.topTrainer) {
             var members = [];
             var countMembers = 0;
-            for(const member of trainers.memberName){
+            for (const member of trainers.memberName) {
               ++countMembers;
-              members.push(member)
-              if(countMembers % 10 == 0) members.push("\n")
-              if(trainers.memberName.length == countMembers){
+              members.push(member);
+              if (countMembers % 10 == 0) members.push("\n");
+              if (trainers.memberName.length == countMembers) {
                 this.memberNames.push(members + "");
-              }  
+              }
             }
           }
           console.log(this.topTrainer);

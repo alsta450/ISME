@@ -1,5 +1,5 @@
 <template>
- <div class="list row">
+  <div class="list row">
     <div class="col-md-6">
       <h4>Loyal Members</h4>
       <table data-link="row">
@@ -16,27 +16,27 @@
           </tr>
         </thead>
         <tr v-for="(loyalMember, index) in loyalMembers" :key="index">
-          <td>{{loyalMember.memberName}}</td>
-          <td>{{trainerNames[index]}}</td>
-          <td>{{loyalMember.branchName}}</td>
-          <td>{{loyalMember.street}}</td>
-          <td>{{loyalMember.city}}</td>
-          <td>{{loyalMember.zip}}</td>
-          <td>{{loyalMember.totalSessions}}</td>
-          <td>{{loyalMember.totalPrice}}</td>
+          <td>{{ loyalMember.memberName }}</td>
+          <td>{{ trainerNames[index] }}</td>
+          <td>{{ loyalMember.branchName }}</td>
+          <td>{{ loyalMember.street }}</td>
+          <td>{{ loyalMember.city }}</td>
+          <td>{{ loyalMember.zip }}</td>
+          <td>{{ loyalMember.totalSessions }}</td>
+          <td>{{ loyalMember.totalPrice }}</td>
         </tr>
       </table>
     </div>
- </div>
+  </div>
 </template>
 
 <script>
-import FitnessCenterService from '../services/FitnessCenterService';
+import FitnessCenterService from "../services/FitnessCenterService";
 export default {
   data() {
     return {
       loyalMembers: [],
-      trainerNames: []
+      trainerNames: [],
     };
   },
   methods: {
@@ -44,7 +44,7 @@ export default {
       FitnessCenterService.loyalstMembers()
         .then((response) => {
           this.loyalMembers = response.data;
-          for(const trainer of this.loyalMembers){
+          for (const trainer of this.loyalMembers) {
             this.trainerNames.push(trainer.trainerName + " ");
           }
           console.log(this.loyalMembers);

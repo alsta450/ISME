@@ -10,7 +10,7 @@ public class DatabaseHelper implements CreateTable {
 
 	private static final String DB_CONNECTION_URL = "jdbc:mysql://localhost:3306/fitness_center";
 	private static final String USER = "root";
-	private static final String PASSWORD = "admin";
+	private static final String PASSWORD = "1234";
 	private static final String DRIVER = "com.mysql.jdbc.Driver";
 
 	private static Statement statement;

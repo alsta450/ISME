@@ -24,7 +24,7 @@
         };
     },
     created () {
-            if (LoginService.currentUserValue) { 
+            if (LoginService.loggedUserValue) { 
                 return router.push('/');
             }
 
