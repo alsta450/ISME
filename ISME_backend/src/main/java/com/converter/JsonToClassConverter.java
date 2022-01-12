@@ -1,12 +1,20 @@
 package com.converter;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
+
+import javax.management.RuntimeErrorException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import com.entities.Branch;
 import com.entities.Employee;
@@ -43,6 +51,26 @@ public class JsonToClassConverter {
 
 	}
 
+	public JSONArray stringToJsonArray(String string) {
+		Object object=null;
+		JSONParser jsonParser = new JSONParser();
+		// Person
+		try {
+		try (InputStream inputStream = getClass().getResourceAsStream(string);
+			    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+			    String contents = reader.lines()
+			      .collect(Collectors.joining(System.lineSeparator()));
+			    object=jsonParser.parse(contents);
+			    return (JSONArray) object;
+			    
+			}
+		} catch (Exception e) {
+
+			return null;
+		}
+	}
+	
+	
 	public Person jsonToPerson(Object o) {
 		try {
 			Person person = mapper.readValue(o.toString(), Person.class);

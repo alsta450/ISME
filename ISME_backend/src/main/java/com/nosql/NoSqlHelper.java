@@ -35,7 +35,7 @@ public class NoSqlHelper {
 	private static Logger logger = LoggerFactory.getLogger(NoSqlHelper.class);
 
 	public NoSqlHelper() {
-		this.mongoClient = new MongoClient(new MongoClientURI("mongodb://localhost:27017"));
+		this.mongoClient = new MongoClient(new MongoClientURI("mongodb://mongo:27017"));
 		this.database = mongoClient.getDatabase("fitness_center");
 	}
 

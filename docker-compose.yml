@@ -1,0 +1,57 @@
+version: '3.6'
+
+services:
+  #change these commented blocks to add your chosen database images as containers to your project
+
+
+  sql:
+    image: mysql:8.0.27
+    container_name: sql
+    restart: always
+    environment:
+      MYSQL_USER: 'root'
+      MYSQL_DATABASE: 'fitness_center'
+      # Password for root access
+      MYSQL_PASSWORD: 'admin'
+    ports:
+      # <Port exposed> : < MySQL Port running inside container>
+      - '3306:3306'
+    expose:
+      # Opens port 3306 on the container
+      - '3306'
+
+
+
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    cap_add:
+      - SYS_NICE
+    environment:
+      MONGO_HOST: mongo
+      MONGO_INITDB_DATABASE: fitness_center
+    ports:
+      - "27017:27017"
+    expose:
+      # Opens port 3306 on the container
+      - '27017'
+
+  isme_backend:
+    #this tells docker where to look for the Dockerfile to build the image
+    build: ./ISME_Backend
+    #name of your container and also the DNS name (nginx will proxy pass to this container from localhost:8000 when using a browser or Postman)
+    container_name: backend
+    restart: always
+    #EXPOSE defines the ports reachable from INSIDE your docker network
+    expose: 
+      - 8081
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    restart: always
+    #PORTS defines ports reachable from the outside world, like a browser or other clients
+    ports: 
+      - "8081:8081"
+

@@ -8,9 +8,9 @@ import java.sql.Statement;
 
 public class DatabaseHelper implements CreateTable {
 
-	private static final String DB_CONNECTION_URL = "jdbc:mysql://localhost:3306/fitness_center";
+	private static final String DB_CONNECTION_URL = "jdbc:mysql://sql:3306/fitness_center";
 	private static final String USER = "root";
-	private static final String PASSWORD = "1234";
+	private static final String PASSWORD = "admin";
 	private static final String DRIVER = "com.mysql.jdbc.Driver";
 
 	private static Statement statement;
@@ -28,7 +28,7 @@ public class DatabaseHelper implements CreateTable {
 
 	@Override
 	public void createBranchTable() {
-		String createTable = "CREATE TABLE Branch(" + "street VARCHAR(30)," + "city VARCHAR(30)," + "zip CHAR(4),"
+		String createTable = "CREATE TABLE branch(" + "street VARCHAR(30)," + "city VARCHAR(30)," + "zip CHAR(4),"
 				+ "name VARCHAR(40)," + "area VARCHAR(10)," + "PRIMARY KEY(street,city,zip)" + ");";
 
 		try {
@@ -56,7 +56,7 @@ public class DatabaseHelper implements CreateTable {
 		String createTable = "CREATE TABLE Room(" + "room_number INTEGER," + "street VARCHAR(30)," + "city VARCHAR(30),"
 				+ "zip CHAR(4)," + "name VARCHAR(15)," + "interior VARCHAR(20),"
 				+ "PRIMARY KEY(room_number,street,city,zip),"
-				+ "FOREIGN KEY(street, city, zip) REFERENCES Branch(street, city, zip) ON DELETE CASCADE" + ");";
+				+ "FOREIGN KEY(street, city, zip) REFERENCES branch(street, city, zip) ON DELETE CASCADE" + ");";
 
 		try {
 			statement.execute(createTable);
@@ -70,7 +70,7 @@ public class DatabaseHelper implements CreateTable {
 		String createTable = "CREATE TABLE Fitness_equipment(\r\n" + "description VARCHAR(30) PRIMARY KEY,\r\n"
 				+ "muscle_group VARCHAR(25),\r\n" + "fitness_type VARCHAR(10),\r\n" + "street VARCHAR(30),\r\n"
 				+ "city VARCHAR(30),\r\n" + "zip CHAR(4),\r\n"
-				+ "FOREIGN KEY(street, city, zip) REFERENCES Branch(street, city, zip) ON DELETE CASCADE\r\n" + ");";
+				+ "FOREIGN KEY(street, city, zip) REFERENCES branch(street, city, zip) ON DELETE CASCADE\r\n" + ");";
 
 		try {
 			statement.execute(createTable);
@@ -96,7 +96,7 @@ public class DatabaseHelper implements CreateTable {
 
 	@Override
 	public void createMemberTable() {
-		String createTable = "CREATE TABLE Member(\r\n" + "svnr BIGINT PRIMARY KEY, \r\n" + "abo VARCHAR(30),\r\n"
+		String createTable = "CREATE TABLE member(\r\n" + "svnr BIGINT PRIMARY KEY, \r\n" + "abo VARCHAR(30),\r\n"
 				+ "fee Integer,\r\n" +"role CHAR(6)," + "FOREIGN KEY(svnr) REFERENCES Person(svnr) ON DELETE CASCADE\r\n" + ");";
 
 		try {
@@ -113,7 +113,7 @@ public class DatabaseHelper implements CreateTable {
 				+ "wage INTEGER CHECK(wage >900),\r\n" + "qualification VARCHAR(30),\r\n" + "street VARCHAR(30),\r\n"
 				+ "city VARCHAR(30),\r\n" + "zip CHAR(4),\r\n" +"role CHAR(6)," 
 				+ "FOREIGN KEY(svnr) REFERENCES Person(svnr) ON DELETE CASCADE,\r\n"
-				+ "FOREIGN KEY(street, city, zip) REFERENCES Branch(street, city, zip) ON DELETE CASCADE\r\n" + ");";
+				+ "FOREIGN KEY(street, city, zip) REFERENCES branch(street, city, zip) ON DELETE CASCADE\r\n" + ");";
 
 		try {
 			statement.execute(createTable);
@@ -129,7 +129,7 @@ public class DatabaseHelper implements CreateTable {
 				+ "price INTEGER NOT NULL,\r\n" + "duration INTEGER NOT NULL,\r\n" + "employee_svnr BIGINT, \r\n"
 				+ "member_svnr BIGINT, \r\n"
 				+ "FOREIGN KEY(employee_svnr) REFERENCES Employee(svnr) ON DELETE CASCADE,\r\n"
-				+ "FOREIGN KEY(member_svnr) REFERENCES Member(svnr) ON DELETE CASCADE\r\n" + "\r\n" + ");";
+				+ "FOREIGN KEY(member_svnr) REFERENCES member(svnr) ON DELETE CASCADE\r\n" + "\r\n" + ");";
 
 		try {
 			statement.execute(createTable);
@@ -143,8 +143,8 @@ public class DatabaseHelper implements CreateTable {
 	public void createVisitTable() {
 		String createTable = "CREATE TABLE visit(\r\n" + "member_svnr BIGINT, \r\n" + "street VARCHAR(30),\r\n"
 				+ "city VARCHAR(30),\r\n" + "zip CHAR(7),\r\n" + "PRIMARY KEY(member_svnr,street, city, zip),\r\n"
-				+ "FOREIGN KEY(member_svnr) REFERENCES Member(svnr) ON DELETE CASCADE,\r\n"
-				+ "FOREIGN KEY(street, city, zip) REFERENCES Branch(street, city, zip) ON DELETE CASCADE\r\n" + ");";
+				+ "FOREIGN KEY(member_svnr) REFERENCES member(svnr) ON DELETE CASCADE,\r\n"
+				+ "FOREIGN KEY(street, city, zip) REFERENCES branch(street, city, zip) ON DELETE CASCADE\r\n" + ");";
 
 		try {
 			statement.execute(createTable);
@@ -200,9 +200,9 @@ public class DatabaseHelper implements CreateTable {
 				+ "    INNER JOIN (SELECT \r\n"
 				+ "        zip, street, city, name\r\n"
 				+ "    FROM\r\n"
-				+ "        Branch) AS Branch_alias ON Branch_alias.zip = popular_trainer.ZIP_employee\r\n"
-				+ "        AND Branch_alias.street = popular_trainer.Street_employee\r\n"
-				+ "        AND Branch_alias.city = popular_trainer.City_employee) AS popular_trainer\r\n"
+				+ "        branch) AS branch_alias ON branch_alias.zip = popular_trainer.ZIP_employee\r\n"
+				+ "        AND branch_alias.street = popular_trainer.Street_employee\r\n"
+				+ "        AND branch_alias.city = popular_trainer.City_employee) AS popular_trainer\r\n"
 				+ "    INNER JOIN (SELECT \r\n"
 				+ "        Person.firstname AS 'member_name', SVNR\r\n"
 				+ "    FROM\r\n"
@@ -286,9 +286,9 @@ public class DatabaseHelper implements CreateTable {
 				+ "        firstname AS member_firstname, svnr\r\n"
 				+ "    FROM\r\n"
 				+ "        Person) AS person_alias ON member_svnr = person_alias.svnr) AS t\r\n"
-				+ "    INNER JOIN Branch ON Branch.zip = t.zip\r\n"
-				+ "        AND Branch.street = t.street\r\n"
-				+ "        AND Branch.city = t.city) AS t ON t.member_svnr = training_session.member_svnr\r\n"
+				+ "    INNER JOIN branch ON branch.zip = t.zip\r\n"
+				+ "        AND branch.street = t.street\r\n"
+				+ "        AND branch.city = t.city) AS t ON t.member_svnr = training_session.member_svnr\r\n"
 				+ "    INNER JOIN employee ON Employee.svnr = training_session.employee_svnr\r\n"
 				+ "        AND t.zip = employee.zip) AS t\r\n"
 				+ "        INNER JOIN\r\n"
@@ -333,7 +333,7 @@ public class DatabaseHelper implements CreateTable {
 
 	@Override
 	public ResultSet getBranchAndEmployees() {
-		String query = "select Branch.city, Branch.street, Branch.zip, area, name, svnr FROM Branch Inner Join employee on Branch.zip = employee.zip AND  Branch.street = employee.street AND  Branch.city = employee.city;";
+		String query = "select branch.city, branch.street, branch.zip, area, name, svnr FROM branch Inner Join employee on branch.zip = employee.zip AND  branch.street = employee.street AND  branch.city = employee.city;";
 		try {
 			Statement stmt = connection.createStatement();
 			ResultSet rs = stmt.executeQuery(query);
@@ -346,7 +346,7 @@ public class DatabaseHelper implements CreateTable {
 	
 	@Override
 	public ResultSet getBranchAndEquipment() {
-		String query = "SELECT description,fitness_type,muscle_group,BRanch.zip,branch.city,branch.street FROM Branch inner Join fitness_equipment on Branch.zip = fitness_equipment.zip AND  Branch.street = fitness_equipment.street AND  Branch.city = fitness_equipment.city;";
+		String query = "SELECT description,fitness_type,muscle_group,branch.zip,branch.city,branch.street FROM branch inner Join fitness_equipment on branch.zip = fitness_equipment.zip AND  branch.street = fitness_equipment.street AND  branch.city = fitness_equipment.city;";
 		try {
 			Statement stmt = connection.createStatement();
 			ResultSet rs = stmt.executeQuery(query);
@@ -377,7 +377,7 @@ public class DatabaseHelper implements CreateTable {
 	
 	@Override
 	public ResultSet getMemberAndPersonAndTrainingAndVisit() {
-		String query = "SELECT Member.svnr, abo, fee, birthday, firstname, iban, lastname, password, username, trainings_id, city, street, zip FROM Member inner Join Person on Person.svnr = Member.svnr left Join Training_session on Member.svnr = Training_session.member_Svnr left join visit on Member.svnr = visit.member_svnr;";
+		String query = "SELECT member.svnr, abo, fee, birthday, firstname, iban, lastname, password, username, trainings_id, city, street, zip FROM member inner Join person on person.svnr = member.svnr left Join training_session on member.svnr = training_session.member_svnr left join visit on member.svnr = visit.member_svnr;".toLowerCase();
 		try {
 			Statement stmt = connection.createStatement();
 			ResultSet rs = stmt.executeQuery(query);
@@ -389,7 +389,7 @@ public class DatabaseHelper implements CreateTable {
 	}
 	@Override
 	public ResultSet getEmployeeAndTutor() {
-		String query = "SELECT emp.svnr, emp.hours,emp.qualification, emp.wage, emp.birthday, emp.firstname,emp.iban,emp.lastname,emp.password,emp.username,employee.svnr as tutor FROM (SELECT Employee.svnr, hours,qualification, wage, birthday, firstname,iban,lastname,password,username FROM Employee INNER JOIN Person on Employee.svnr = Person.svnr) AS emp LEFT JOIN employee on emp.svnr = employee.tutor;";
+		String query = "SELECT emp.svnr, emp.hours,emp.qualification, emp.wage, emp.birthday, emp.firstname,emp.iban,emp.lastname,emp.password,emp.username,employee.svnr as tutor FROM (SELECT employee.svnr, hours,qualification, wage, birthday, firstname,iban,lastname,password,username FROM Employee INNER JOIN person on Employee.svnr = person.svnr) AS emp LEFT JOIN employee on emp.svnr = employee.tutor;".toLowerCase();
 		try {
 			Statement stmt = connection.createStatement();
 			ResultSet rs = stmt.executeQuery(query);

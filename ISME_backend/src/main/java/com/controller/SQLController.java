@@ -1,5 +1,8 @@
 package com.controller;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -9,8 +12,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.json.JSONObject;
 import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,9 +84,8 @@ public class SQLController extends AController {
 	public ResponseEntity<HttpStatus> ceateAllEntries() {
 		logger.info("Creating Person...");
 		try {
-			// Person
-			JSONArray personList = jsonConverter.readJson("src/main/resources/person.json");
-			Iterator<?> it = personList.iterator();
+			JSONArray personArray = jsonConverter.stringToJsonArray("/person.json");
+			Iterator<?> it = personArray.iterator();
 			while (it.hasNext()) {
 				personOperations.save(jsonConverter.jsonToPerson(it.next()));
 			}
@@ -91,8 +96,8 @@ public class SQLController extends AController {
 		logger.info("Creating Branch...");
 		try {
 			// Branch
-			JSONArray branchList = jsonConverter.readJson("src/main/resources/branch.json");
-			Iterator<?> it = branchList.iterator();
+			JSONArray branchArray = jsonConverter.stringToJsonArray("/branch.json");
+			Iterator<?> it = branchArray.iterator();
 			while (it.hasNext()) {
 				branchOperations.save(jsonConverter.jsonToBranch(it.next()));
 			}
@@ -103,8 +108,8 @@ public class SQLController extends AController {
 		logger.info("Creating Room...");
 		try {
 			// Room
-			JSONArray roomList = jsonConverter.readJson("src/main/resources/room.json");
-			Iterator<?> it = roomList.iterator();
+			JSONArray roomArray = jsonConverter.stringToJsonArray("/room.json");
+			Iterator<?> it = roomArray.iterator();
 			while (it.hasNext()) {
 				roomOperations.save(jsonConverter.jsonToRoom(it.next()));
 			}
@@ -116,8 +121,8 @@ public class SQLController extends AController {
 		logger.info("Creating FitnessEquipment...");
 		try {
 			// FitnessEquipment
-			JSONArray fitnessEquipmentList = jsonConverter.readJson("src/main/resources/fitness_equipment.json");
-			Iterator<?> it = fitnessEquipmentList.iterator();
+			JSONArray fitnessArray = jsonConverter.stringToJsonArray("/fitness_equipment.json");
+			Iterator<?> it = fitnessArray.iterator();
 			while (it.hasNext()) {
 				fitnessEquipmentOperations.save(jsonConverter.jsonToFitnessEquipment(it.next()));
 			}
@@ -128,8 +133,8 @@ public class SQLController extends AController {
 		logger.info("Creating Employee...");
 		try {
 			// Employee
-			JSONArray employeeList = jsonConverter.readJson("src/main/resources/employee.json");
-			Iterator<?> it = employeeList.iterator();
+			JSONArray employeeArray = jsonConverter.stringToJsonArray("/employee.json");
+			Iterator<?> it = employeeArray.iterator();
 			while (it.hasNext()) {
 				employeeOperations.save(jsonConverter.jsonToEmployee(it.next()));
 			}
@@ -141,8 +146,8 @@ public class SQLController extends AController {
 		logger.info("Creating Member...");
 		try {
 			// Member
-			JSONArray memberList = jsonConverter.readJson("src/main/resources/member.json");
-			Iterator<?> it = memberList.iterator();
+			JSONArray memberArray = jsonConverter.stringToJsonArray("/member.json");
+			Iterator<?> it = memberArray.iterator();
 			while (it.hasNext()) {
 				memberOperations.save(jsonConverter.jsonToMember(it.next()));
 			}
@@ -150,19 +155,12 @@ public class SQLController extends AController {
 			e.printStackTrace();
 			return new ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		/*
-		 * logger.info("Creating Tutor..."); try { // Tutor JSONArray tutorList =
-		 * jsonConverter.readJson("src/main/resources/tutor.json"); Iterator it =
-		 * tutorList.iterator(); while (it.hasNext()) {
-		 * tutorOperations.save(jsonConverter.jsonToTutor(it.next())); } } catch
-		 * (Exception e) { e.printStackTrace(); return new
-		 * ResponseEntity<HttpStatus>(HttpStatus.INTERNAL_SERVER_ERROR); }
-		 */
+
 		logger.info("Creating Visit...");
 		try {
 			// Visit
-			JSONArray visitList = jsonConverter.readJson("src/main/resources/visit.json");
-			Iterator<?> it = visitList.iterator();
+			JSONArray visitArray = jsonConverter.stringToJsonArray("/visit.json");
+			Iterator<?> it = visitArray.iterator();
 			while (it.hasNext()) {
 				visitOperations.save(jsonConverter.jsonToVisit(it.next()));
 			}
@@ -174,8 +172,8 @@ public class SQLController extends AController {
 		logger.info("Creating TrainingSession...");
 		try {
 			// Visit
-			JSONArray trainingSessionList = jsonConverter.readJson("src/main/resources/trainingsession.json");
-			Iterator<?> it = trainingSessionList.iterator();
+			JSONArray trainingSessionArray = jsonConverter.stringToJsonArray("/trainingsession.json");
+			Iterator<?> it = trainingSessionArray.iterator();
 			while (it.hasNext()) {
 				trainingSessionOperations.save(jsonConverter.jsonToTrainingSession(it.next()));
 			}
