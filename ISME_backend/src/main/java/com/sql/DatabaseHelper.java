@@ -215,7 +215,7 @@ public class DatabaseHelper implements CreateTable {
 		
 		try {
 			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery(getBestTrainers);
+			ResultSet rs = stmt.executeQuery(getBestTrainers.toLowerCase());
 			return rs;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -296,7 +296,7 @@ public class DatabaseHelper implements CreateTable {
 		
 		try {
 			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery(loyalMembers);
+			ResultSet rs = stmt.executeQuery(loyalMembers.toLowerCase());
 			return rs;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -316,14 +316,14 @@ public class DatabaseHelper implements CreateTable {
 				+ "			                employee_svnr\r\n"
 				+ "			        FROM\r\n"
 				+ "			            training_session\r\n"
-				+ "			        INNER JOIN PErson AS person_member ON training_session.member_svnr = person_member.svnr\r\n"
+				+ "			        INNER JOIN Person AS person_member ON training_session.member_svnr = person_member.svnr\r\n"
 				+ "			        WHERE\r\n"
 				+ "			            training_session.member_svnr = "+memberSvnr+") AS p\r\n"
 				+ "			            INNER JOIN\r\n"
 				+ "			        Person as person_trainer on p.employee_svnr = person_trainer.svnr;";
 		try {
 			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery(query);
+			ResultSet rs = stmt.executeQuery(query.toLowerCase());
 			return rs;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -336,7 +336,7 @@ public class DatabaseHelper implements CreateTable {
 		String query = "select branch.city, branch.street, branch.zip, area, name, svnr FROM branch Inner Join employee on branch.zip = employee.zip AND  branch.street = employee.street AND  branch.city = employee.city;";
 		try {
 			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery(query);
+			ResultSet rs = stmt.executeQuery(query.toLowerCase());
 			return rs;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -349,7 +349,7 @@ public class DatabaseHelper implements CreateTable {
 		String query = "SELECT description,fitness_type,muscle_group,branch.zip,branch.city,branch.street FROM branch inner Join fitness_equipment on branch.zip = fitness_equipment.zip AND  branch.street = fitness_equipment.street AND  branch.city = fitness_equipment.city;";
 		try {
 			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery(query);
+			ResultSet rs = stmt.executeQuery(query.toLowerCase());
 			return rs;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -367,7 +367,7 @@ public class DatabaseHelper implements CreateTable {
 				+ "    person ON person.svnr = training_session.employee_svnr;";
 		try {
 			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery(query);
+			ResultSet rs = stmt.executeQuery(query.toLowerCase());
 			return rs;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -377,10 +377,10 @@ public class DatabaseHelper implements CreateTable {
 	
 	@Override
 	public ResultSet getMemberAndPersonAndTrainingAndVisit() {
-		String query = "SELECT member.svnr, abo, fee, birthday, firstname, iban, lastname, password, username, trainings_id, city, street, zip FROM member inner Join person on person.svnr = member.svnr left Join training_session on member.svnr = training_session.member_svnr left join visit on member.svnr = visit.member_svnr;".toLowerCase();
+		String query = "SELECT member.svnr, abo, fee, birthday, firstname, iban, lastname, password, username, trainings_id, city, street, zip FROM member inner Join person on person.svnr = member.svnr left Join training_session on member.svnr = training_session.member_svnr left join visit on member.svnr = visit.member_svnr;";
 		try {
 			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery(query);
+			ResultSet rs = stmt.executeQuery(query.toLowerCase());
 			return rs;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -389,10 +389,10 @@ public class DatabaseHelper implements CreateTable {
 	}
 	@Override
 	public ResultSet getEmployeeAndTutor() {
-		String query = "SELECT emp.svnr, emp.hours,emp.qualification, emp.wage, emp.birthday, emp.firstname,emp.iban,emp.lastname,emp.password,emp.username,employee.svnr as tutor FROM (SELECT employee.svnr, hours,qualification, wage, birthday, firstname,iban,lastname,password,username FROM Employee INNER JOIN person on Employee.svnr = person.svnr) AS emp LEFT JOIN employee on emp.svnr = employee.tutor;".toLowerCase();
+		String query = "SELECT emp.svnr, emp.hours,emp.qualification, emp.wage, emp.birthday, emp.firstname,emp.iban,emp.lastname,emp.password,emp.username,employee.svnr as tutor FROM (SELECT employee.svnr, hours,qualification, wage, birthday, firstname,iban,lastname,password,username FROM Employee INNER JOIN person on Employee.svnr = person.svnr) AS emp LEFT JOIN employee on emp.svnr = employee.tutor;";
 		try {
 			Statement stmt = connection.createStatement();
-			ResultSet rs = stmt.executeQuery(query);
+			ResultSet rs = stmt.executeQuery(query.toLowerCase());
 			return rs;
 		} catch (SQLException e) {
 			e.printStackTrace();

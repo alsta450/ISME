@@ -8,6 +8,7 @@ services:
     image: mysql:8.0.27
     container_name: sql
     restart: always
+    command: mysqld --sql_mode=""
     environment:
       MYSQL_USER: 'root'
       MYSQL_DATABASE: 'fitness_center'
@@ -47,6 +48,14 @@ services:
     expose: 
       - 8081
 
+  frontend:
+      build: ./ISME_frontend/vue-js-client-crud
+      container_name: frontend
+      restart: always
+      expose:
+        - 80
+
+
   nginx:
     build: ./nginx
     container_name: nginx
@@ -54,4 +63,5 @@ services:
     #PORTS defines ports reachable from the outside world, like a browser or other clients
     ports: 
       - "8081:8081"
+      - "8080:8080"
 
