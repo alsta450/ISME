@@ -30,7 +30,7 @@ import com.report.BestTrainer;
 import com.report.LoyalMember;
 
 public class NoSqlHelper {
-	private MongoClient mongoClient= new MongoClient(new MongoClientURI("mongodb://mongo:27017"));;
+	private MongoClient mongoClient= new MongoClient(new MongoClientURI("mongodb://localhost:27017"));;
 	private MongoDatabase database;
 	private static Logger logger = LoggerFactory.getLogger(NoSqlHelper.class);
 

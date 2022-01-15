@@ -19,10 +19,6 @@ public class Main {
 
 		app.run(args);
 		
-		//JsonToClassConverter j = new JsonToClassConverter();
-		
-		//j.readJson();
-
 	}
 
 }

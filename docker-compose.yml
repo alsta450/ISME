@@ -49,7 +49,7 @@ services:
       - 8081
 
   frontend:
-      build: ./ISME_frontend/vue-js-client-crud
+      build: ./ISME_frontend
       container_name: frontend
       restart: always
       expose:
