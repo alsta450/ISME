@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:16 as build-stage
 
 # install simple http server for serving static content
 RUN npm install -g http-server
@@ -17,6 +17,10 @@ COPY . .
 
 RUN npm run build
 
-EXPOSE 8080
-CMD [ "http-server", "dist" ]
 
+FROM nginx as production-stage
+RUN mkdir /app
+COPY --from=build-stage /app/dist /app
+COPY nginx.conf /etc/nginx/nginx.conf
+EXPOSE 8080
+CMD [ "nginx", "-g", "daemon off;" ]
