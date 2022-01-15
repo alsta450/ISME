@@ -230,6 +230,7 @@ public class FitnessCenterController extends AController {
 		List<Document> memberList = sqlToNosqlConverter.migrateMember(dbhelper.getMemberAndPersonAndTrainingAndVisit());
 		nosqlHelper.createCollection(memberList, "member");
 		List<Document> employeeList = sqlToNosqlConverter.migrateEmployeeAndTutor(dbhelper.getEmployeeAndTutor());
+		nosqlHelper.createCollection(employeeList, "employee");
 		nosqlHelper.indexing("employee", "_id");
 		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
 	}

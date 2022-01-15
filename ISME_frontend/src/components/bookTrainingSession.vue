@@ -64,8 +64,8 @@
       <table data-link="row">
         <thead>
           <tr>
-            <th>Member svnr</th>
-            <th>Employee svnr</th>
+            <th>Member</th>
+            <th>Employee</th>
             <th>Price</th>
             <th>Duration</th>
           </tr>
